@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block content %}
+<div class="py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto text-center">
+    <h1
+      class="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl neon-text"
+    >
+      Bienvenido a Racheros
+    </h1>
+    <p class="mt-4 text-xl text-gray-300">
+      Tu centro de mando para construir, seguir y dominar tus hábitos.
+    </p>
+    <div class="mt-8">
+      <a
+        href="{{ url_for('login') }}"
+        class="inline-block bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-cyan-700 transition-transform transform hover:scale-105"
+      >
+        Comenzar Ahora
+      </a>
+    </div>
+  </div>
+
+  <!-- Aquí puedes empezar a construir el dashboard principal de tu app -->
+  <div class="mt-20 max-w-5xl mx-auto">
+    <div class="bg-gray-800/50 rounded-xl p-8 border border-cyan-500/20">
+      <h2 class="text-2xl font-bold text-white mb-4">
+        Dashboard (Próximamente)
+      </h2>
+      <p class="text-gray-400">
+        Una vez que inicies sesión, aquí verás tus hábitos, tu progreso semanal
+        y todas las herramientas para forjar tus rachas. ¡El primer paso es el
+        más importante!
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

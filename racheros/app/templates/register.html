@@ -1,0 +1,240 @@
+{% extends "base.html" %} {% block title %}Registro{% endblock %} {% block
+styles %}
+<style>
+  /* Estilos Neumórficos Compartidos (Idénticos a login.html) */
+  :root {
+    --neumorphic-bg-light: #e0e5ec;
+    --neumorphic-bg-dark: #2c3036;
+    --neumorphic-text-light: #5b626d;
+    --neumorphic-text-dark: #bdc1c6;
+    --neumorphic-shadow-light-1: #ffffff;
+    --neumorphic-shadow-light-2: #a3b1c6;
+    --neumorphic-shadow-dark-1: #383c44;
+    --neumorphic-shadow-dark-2: #202328;
+    --orange-base: #ea580c;
+    --orange-hover: #f97316;
+    --cyan-base: #06b6d4;
+  }
+
+  .auth-container {
+    background-color: var(--neumorphic-bg-light);
+    transition: background-color 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .auth-container {
+    background-color: var(--neumorphic-bg-dark);
+  }
+
+  .neumorphic-card {
+    border-radius: 40px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 12px 12px 24px var(--neumorphic-shadow-light-2),
+      -12px -12px 24px var(--neumorphic-shadow-light-1);
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .neumorphic-card {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 12px 12px 24px var(--neumorphic-shadow-dark-2),
+      -12px -12px 24px var(--neumorphic-shadow-dark-1);
+  }
+
+  .neumorphic-input,
+  .neumorphic-select {
+    border-radius: 20px;
+    border: none;
+    background: var(--neumorphic-bg-light);
+    box-shadow: inset 7px 7px 14px var(--neumorphic-shadow-light-2),
+      inset -7px -7px 14px var(--neumorphic-shadow-light-1);
+    color: var(--neumorphic-text-light);
+    padding: 1rem 1.5rem;
+    height: auto;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  .neumorphic-input:focus,
+  .neumorphic-select:focus {
+    background: var(--neumorphic-bg-light);
+    box-shadow: inset 4px 4px 8px var(--neumorphic-shadow-light-2),
+      inset -4px -4px 8px var(--neumorphic-shadow-light-1);
+    color: var(--neumorphic-text-light);
+  }
+
+  [data-bs-theme="dark"] .neumorphic-input,
+  [data-bs-theme="dark"] .neumorphic-select {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: inset 7px 7px 14px var(--neumorphic-shadow-dark-2),
+      inset -7px -7px 14px var(--neumorphic-shadow-dark-1);
+    color: var(--neumorphic-text-dark);
+  }
+  [data-bs-theme="dark"] .neumorphic-input:focus,
+  [data-bs-theme="dark"] .neumorphic-select:focus {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: inset 4px 4px 8px var(--neumorphic-shadow-dark-2),
+      inset -4px -4px 8px var(--neumorphic-shadow-dark-1);
+    color: var(--neumorphic-text-dark);
+  }
+
+  .neumorphic-btn {
+    border-radius: 20px;
+    border: none;
+    font-weight: 600;
+    padding: 0.9rem;
+    color: white;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+    background: var(--cyan-base);
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-light-2),
+      -6px -6px 12px var(--neumorphic-shadow-light-1);
+    transition: all 0.2s ease-in-out;
+  }
+  .neumorphic-btn:hover {
+    background: #0891b2;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 8px 8px 16px var(--neumorphic-shadow-light-2),
+      -8px -8px 16px var(--neumorphic-shadow-light-1);
+  }
+  .neumorphic-btn:active {
+    color: white !important;
+    transform: translateY(1px);
+    box-shadow: inset 4px 4px 8px #05849e, inset -4px -4px 8px #07e8ff !important;
+  }
+  .neumorphic-btn:disabled {
+    background: #bdc3c7;
+    color: #7f8c8d;
+    box-shadow: inset 3px 3px 6px #9fa6aa, inset -3px -3px 6px #d9e0e4;
+    cursor: not-allowed;
+  }
+
+  [data-bs-theme="dark"] .neumorphic-btn {
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-dark-2),
+      -6px -6px 12px var(--neumorphic-shadow-dark-1);
+  }
+  [data-bs-theme="dark"] .neumorphic-btn:hover {
+    box-shadow: 8px 8px 16px var(--neumorphic-shadow-dark-2),
+      -8px -8px 16px var(--neumorphic-shadow-dark-1);
+  }
+  [data-bs-theme="dark"] .neumorphic-btn:active {
+    box-shadow: inset 4px 4px 8px #05849e, inset -4px -4px 8px #07e8ff !important;
+  }
+  [data-bs-theme="dark"] .neumorphic-btn:disabled {
+    background: #34495e;
+    color: #95a5a6;
+    box-shadow: inset 3px 3px 6px #2c3e50, inset -3px -3px 6px #3c546e;
+  }
+
+  .form-control:focus,
+  .form-check-input:focus,
+  .form-select:focus {
+    box-shadow: none;
+  }
+</style>
+{% endblock %} {% block content %}
+<div
+  class="auth-container d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-4"
+>
+  <div class="col-lg-6 col-xl-5">
+    <div class="card neumorphic-card">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <h1 class="h4 fw-bold">Crea tu cuenta en Racheros</h1>
+          <p class="text-secondary small">
+            Empieza a construir hábitos hoy mismo.
+          </p>
+        </div>
+        <form id="register-form" action="" method="post" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.nombre(class="form-control neumorphic-input",
+            placeholder="Nombre completo", required="required") }} {% for error
+            in form.nombre.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.correo(class="form-control neumorphic-input",
+            placeholder="Correo electrónico", required="required") }} {% for
+            error in form.correo.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              {{ form.password(class="form-control neumorphic-input",
+              placeholder="Contraseña", required="required") }} {% for error in
+              form.password.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              {{ form.password2(class="form-control neumorphic-input",
+              placeholder="Repetir contraseña", required="required") }} {% for
+              error in form.password2.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ form.genero(class="form-select neumorphic-select",
+              required="required") }} {% for error in form.genero.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              {{ form.edad(class="form-control neumorphic-input",
+              placeholder="Edad", type="number", required="required") }} {% for
+              error in form.edad.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="d-grid">
+            {{ form.submit(class="btn neumorphic-btn", id="submit-btn") }}
+          </div>
+        </form>
+        <hr class="my-4" />
+        <div class="text-center">
+          <p class="small text-secondary">
+            ¿Ya tienes una cuenta?
+            <a href="{{ url_for('login') }}" class="text-orange fw-bold"
+              >Iniciar sesión</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("register-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const requiredInputs = form.querySelectorAll("[required]");
+
+    function checkFormValidity() {
+      if (!form || !submitBtn) return;
+      let allValid = true;
+      requiredInputs.forEach((input) => {
+        if (!input.value.trim()) {
+          allValid = false;
+        }
+      });
+      submitBtn.disabled = !allValid;
+    }
+
+    if (form && submitBtn) {
+      // Ejecutar al inicio
+      checkFormValidity();
+
+      // Añadir listeners
+      requiredInputs.forEach((input) => {
+        input.addEventListener("input", checkFormValidity);
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Racheros{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='icono.ico') }}" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      xintegrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Iconos de Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <style>
+      /* Estilo base para la app */
+      :root {
+        --neumorphic-bg-light: #e0e5ec;
+        --neumorphic-bg-dark: #2c3036;
+        --neumorphic-text-light: #5b626d;
+        --neumorphic-text-dark: #bdc1c6;
+        --neumorphic-shadow-light-1: #ffffff;
+        --neumorphic-shadow-light-2: #a3b1c6;
+        --neumorphic-shadow-dark-1: #383c44;
+        --neumorphic-shadow-dark-2: #202328;
+        --racheros-orange: #ea580c;
+        --racheros-cyan: #22d3ee;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--neumorphic-bg-light);
+        color: var(--neumorphic-text-light);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        padding-top: 80px; /* Espacio ajustado para la navbar */
+      }
+
+      [data-bs-theme="dark"] body {
+        background-color: var(--neumorphic-bg-dark);
+        color: var(--neumorphic-text-dark);
+      }
+
+      /* Navbar Neumórfica */
+      .navbar {
+        background: var(--neumorphic-bg-light);
+        box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+          -8px -8px 15px var(--neumorphic-shadow-light-1);
+        border-bottom: none;
+        padding: 1rem;
+      }
+      [data-bs-theme="dark"] .navbar {
+        background: var(--neumorphic-bg-dark);
+        box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
+          -8px -8px 15px var(--neumorphic-shadow-dark-1);
+      }
+
+      .navbar-brand,
+      .nav-link,
+      .theme-icon {
+        color: var(--neumorphic-text-light);
+        transition: all 0.3s ease;
+      }
+      [data-bs-theme="dark"] .navbar-brand,
+      [data-bs-theme="dark"] .nav-link,
+      [data-bs-theme="dark"] .theme-icon {
+        color: var(--neumorphic-text-dark);
+      }
+
+      .navbar-brand-logo {
+        height: 2.5rem;
+        width: auto;
+        margin-right: 0.75rem;
+        border-radius: 12px;
+        padding: 4px;
+        background: var(--neumorphic-bg-light);
+        box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
+          -4px -4px 8px var(--neumorphic-shadow-light-1);
+      }
+      [data-bs-theme="dark"] .navbar-brand-logo {
+        background: var(--neumorphic-bg-dark);
+        box-shadow: 4px 4px 8px var(--neumorphic-shadow-dark-2),
+          -4px -4px 8px var(--neumorphic-shadow-dark-1);
+      }
+
+      .nav-link {
+        margin: 0 0.5rem;
+        padding: 0.75rem 1.25rem !important;
+        border-radius: 12px;
+        font-weight: 600;
+      }
+      .nav-link:hover {
+        color: var(--racheros-orange);
+      }
+      .nav-link:active,
+      .nav-link.active {
+        box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-light-2),
+          inset -5px -5px 10px var(--neumorphic-shadow-light-1) !important;
+        color: var(--racheros-orange);
+      }
+      [data-bs-theme="dark"] .nav-link:hover {
+        color: var(--racheros-cyan);
+      }
+      [data-bs-theme="dark"] .nav-link:active,
+      [data-bs-theme="dark"] .nav-link.active {
+        box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-dark-2),
+          inset -5px -5px 10px var(--neumorphic-shadow-dark-1) !important;
+        color: var(--racheros-cyan);
+      }
+
+      /* Switch de Tema */
+      .theme-switch-container {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 12px;
+      }
+
+      .theme-switch {
+        display: inline-block;
+        height: 20px;
+        position: relative;
+        width: 40px;
+      }
+      .theme-switch input {
+        display: none;
+      }
+      .slider {
+        background-color: #ccc;
+        bottom: 0;
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: 0.4s;
+      }
+      .slider:before {
+        background-color: #fff;
+        bottom: 2px;
+        content: "";
+        height: 16px;
+        left: 2px;
+        position: absolute;
+        transition: 0.4s;
+        width: 16px;
+      }
+      input:checked + .slider {
+        background-color: var(--racheros-orange);
+      }
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+      .slider.round {
+        border-radius: 34px;
+      }
+      .slider.round:before {
+        border-radius: 50%;
+      }
+
+      .text-orange {
+        color: #ea580c !important;
+      }
+
+      /* Footer Neumórfico */
+      .neumorphic-footer {
+        padding: 1rem 0;
+        margin-top: 2rem;
+        background: var(--neumorphic-bg-light);
+        box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-light-2),
+          inset -5px -5px 10px var(--neumorphic-shadow-light-1);
+      }
+      [data-bs-theme="dark"] .neumorphic-footer {
+        background: var(--neumorphic-bg-dark);
+        box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-dark-2),
+          inset -5px -5px 10px var(--neumorphic-shadow-dark-1);
+      }
+      .neumorphic-footer a,
+      .neumorphic-footer strong {
+        color: var(--racheros-orange); /* Naranja para contraste */
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .neumorphic-footer a:hover {
+        text-decoration: underline;
+      }
+      [data-bs-theme="dark"] .neumorphic-footer a,
+      [data-bs-theme="dark"] .neumorphic-footer strong {
+        color: var(--racheros-cyan); /* Cian para contraste en modo oscuro */
+      }
+    </style>
+
+    <!-- Bloque para estilos específicos de cada página -->
+    {% block styles %}{% endblock %}
+  </head>
+  <body>
+    <div class="d-flex flex-column min-vh-100">
+      <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+          <a
+            class="navbar-brand d-flex align-items-center"
+            href="{{ url_for('index') }}"
+          >
+            <img
+              src="{{ url_for('static', filename='icono.png') }}"
+              alt="Logo Racheros"
+              class="navbar-brand-logo"
+            />
+            <span class="fw-bold">Racheros</span>
+          </a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+                  href="{{ url_for('index') }}"
+                  >Inicio</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if request.endpoint == 'login' %}active{% endif %}"
+                  href="{{ url_for('login') }}"
+                  >Login</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if request.endpoint == 'register' %}active{% endif %}"
+                  href="{{ url_for('register') }}"
+                  >Registro</a
+                >
+              </li>
+              <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                <div class="theme-switch-container">
+                  <i class="bi bi-sun theme-icon"></i>
+                  <div class="theme-switch mx-2">
+                    <input type="checkbox" id="theme-checkbox" />
+                    <label for="theme-checkbox" class="slider round"></label>
+                  </div>
+                  <i class="bi bi-moon theme-icon"></i>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Contenido principal de la página -->
+      <main class="flex-grow-1">{% block content %}{% endblock %}</main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      xintegrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("theme-checkbox");
+        const htmlElement = document.documentElement;
+
+        function setTheme(theme) {
+          htmlElement.setAttribute("data-bs-theme", theme);
+          localStorage.setItem("theme", theme);
+          checkbox.checked = theme === "dark";
+        }
+
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        setTheme(savedTheme);
+
+        checkbox.addEventListener("change", () => {
+          setTheme(checkbox.checked ? "dark" : "light");
+        });
+      });
+    </script>
+
+    <!-- Bloque para scripts específicos de cada página -->
+    {% block scripts %}{% endblock %}
+  </body>
+</html>
