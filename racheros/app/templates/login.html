@@ -118,20 +118,6 @@ styles %}
     box-shadow: inset 3px 3px 6px #2c3e50, inset -3px -3px 6px #3c546e;
   }
 
-  .neumorphic-logo {
-    border-radius: 50%;
-    padding: 20px;
-    background: var(--neumorphic-bg-light);
-    box-shadow: 10px 10px 20px var(--neumorphic-shadow-light-2),
-      -10px -10px 20px var(--neumorphic-shadow-light-1);
-    transition: all 0.3s ease;
-  }
-  [data-bs-theme="dark"] .neumorphic-logo {
-    background: var(--neumorphic-bg-dark);
-    box-shadow: 10px 10px 20px var(--neumorphic-shadow-dark-2),
-      -10px -10px 20px var(--neumorphic-shadow-dark-1);
-  }
-
   .form-control:focus,
   .form-check-input:focus {
     box-shadow: none;
@@ -149,63 +135,14 @@ styles %}
           <div
             class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center text-center p-5"
           >
-            <div class="neumorphic-logo mb-4">
-              <svg
-                style="height: 6rem"
-                viewBox="0 0 512 512"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <defs>
-                  <linearGradient
-                    id="flameGradient"
-                    x1="256"
-                    y1="16"
-                    x2="256"
-                    y2="496"
-                    gradientUnits="userSpaceOnUse"
-                  >
-                    <stop stop-color="#F97316" />
-                    <stop offset="1" stop-color="#EA580C" />
-                  </linearGradient>
-                  <filter
-                    id="inner-shadow"
-                    x="-50%"
-                    y="-50%"
-                    width="200%"
-                    height="200%"
-                  >
-                    <feComponentTransfer in="SourceAlpha">
-                      <feFuncA type="table" tableValues="1 0" />
-                    </feComponentTransfer>
-                    <feGaussianBlur stdDeviation="8" />
-                    <feOffset dx="0" dy="10" result="offsetblur" />
-                    <feFlood flood-color="rgba(0,0,0,0.5)" result="color" />
-                    <feComposite in2="offsetblur" operator="in" />
-                    <feComposite in2="SourceAlpha" operator="in" />
-                    <feMerge>
-                      <feMergeNode in="SourceGraphic" />
-                      <feMergeNode />
-                    </feMerge>
-                  </filter>
-                </defs>
-                <g filter="url(#inner-shadow)">
-                  <path
-                    d="M256 16C141.6 16 48 109.6 48 224C48 308.2 96.2 380.4 176 416.4V464C176 481.6 190.4 496 208 496H304C321.6 496 336 481.6 336 464V416.4C415.8 380.4 464 308.2 464 224C464 109.6 370.4 16 256 16Z"
-                    fill="url(#flameGradient)"
-                  />
-                  <path
-                    d="M256 320C224.8 320 200 295.2 200 264C200 240.4 213.6 220.2 234.4 212.4L256 128L277.6 212.4C298.4 220.2 312 240.4 312 264C312 295.2 287.2 320 256 320Z"
-                    fill="white"
-                    fill-opacity="0.8"
-                  />
-                  <path
-                    d="M256 128L234.4 212.4C213.6 220.2 200 240.4 200 264C200 274.8 204.4 284.4 211.6 291.6C218.8 284.4 223.2 274.8 223.2 264C223.2 248.8 236.8 234.4 252.8 231.2L256 128Z"
-                    fill="#22D3EE"
-                    fill-opacity="0.5"
-                  />
-                </g>
-              </svg>
-            </div>
+            <!-- AQUÍ ESTÁ EL CAMBIO -->
+            <img
+              src="{{ url_for('static', filename='mascota.png') }}"
+              alt="Mascota Racheros"
+              class="mb-4"
+              style="height: 12rem; width: auto"
+            />
+
             <h2 class="h4 fw-bold">Forja tus rachas</h2>
             <p class="text-secondary">Domina tus hábitos y alcanza tus metas</p>
           </div>
@@ -268,7 +205,7 @@ styles %}
     const form = document.getElementById("login-form");
     const submitBtn = document.getElementById("submit-btn");
     const requiredInputs = form.querySelectorAll(
-      '[data-required="true"], [required]'
+      '[name="username"], [name="password"]'
     );
 
     function checkFormValidity() {
