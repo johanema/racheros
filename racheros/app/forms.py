@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
+
 
 class LoginForm(FlaskForm):
     """Formulario para el inicio de sesión de usuarios."""
@@ -20,3 +21,10 @@ class RegistrationForm(FlaskForm):
     edad = IntegerField('Edad', validators=[DataRequired(), NumberRange(min=13, max=120, message='Debes ser mayor de 13 años.')])
     submit = SubmitField('Registrarse')
 
+class HabitForm(FlaskForm):
+    """Formulario para crear o editar un hábito."""
+    nombre_habito = StringField('Nombre del hábito', validators=[DataRequired(), Length(max=100)])
+    descripcion = TextAreaField('Descripción (opcional)', validators=[Length(max=255)])
+    frecuencia = SelectField('Frecuencia', choices=[('diario', 'Diario'), ('semanal', 'Semanal'), ('mensual', 'Mensual')], validators=[DataRequired()])
+    categoria = SelectField('Categoría', coerce=int, validators=[DataRequired(message="Por favor, selecciona una categoría.")])
+    submit = SubmitField('Guardar hábito')

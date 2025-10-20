@@ -1,0 +1,173 @@
+{% extends "base.html" %} {% block title %}Registro de progreso{% endblock %} {%
+block styles %}
+<style>
+  .neumorphic-card {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+      -8px -8px 15px var(--neumorphic-shadow-light-1);
+    border: none;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+  }
+  [data-bs-theme="dark"] .neumorphic-card {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
+      -8px -8px 15px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* --- Estilos de Botones Neumórficos (Sin cambios) --- */
+  .btn-neumorphic {
+    border-radius: 20px;
+    border: none;
+    font-weight: 600;
+    padding: 0.9rem 1.5rem;
+    color: white;
+    background: var(--racheros-orange);
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-light-2),
+      -6px -6px 12px var(--neumorphic-shadow-light-1);
+    transition: all 0.2s ease-in-out;
+  }
+  [data-bs-theme="dark"] .btn-neumorphic {
+    background: var(--racheros-cyan);
+    color: white;
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-dark-2),
+      -6px -6px 12px var(--neumorphic-shadow-dark-1);
+  }
+  .btn-neumorphic:hover {
+    transform: translateY(-2px);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+      -8px -8px 15px var(--neumorphic-shadow-light-1);
+  }
+  /* (Quitamos el .active porque ya no usamos ese botón hundido) */
+
+  /* --- Estilos de Títulos (Sin cambios) --- */
+  .habit-title {
+    font-weight: 700;
+    color: var(--neumorphic-text-light);
+  }
+  [data-bs-theme="dark"] .habit-title {
+    color: var(--neumorphic-text-dark);
+  }
+  .text-muted {
+    color: var(--neumorphic-text-light);
+  }
+  [data-bs-theme="dark"] .text-muted {
+    color: var(--neumorphic-text-dark);
+  }
+
+  /* --- 
+    NUEVOS ESTILOS: EL "BOTÓN-BADGE" TIPO TRELLO 
+  --- */
+
+  /* Estilo base para el botón-badge "Completado" */
+  .btn-badge-complete {
+    border: none;
+    font-size: 0.9rem; /* Un poco más pequeño como un badge */
+    padding: 0.4rem 0.9rem; /* Más ajustado */
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    /* Usamos los colores de Bootstrap (verde) */
+    background-color: var(--bs-success);
+    color: white;
+  }
+
+  /* Animación al pasar el mouse (Hover) */
+  .btn-badge-complete:hover {
+    background-color: var(--bs-danger); /* Se vuelve rojo */
+    color: white;
+    transform: scale(1.05); /* Se agranda un poco */
+    cursor: pointer;
+  }
+
+  /* --- Lógica para cambiar texto e ícono con CSS --- */
+
+  /* Ocultar "Desmarcar" por defecto */
+  .btn-badge-complete .text-desmarcar,
+  .btn-badge-complete .icon-desmarcar {
+    display: none;
+  }
+
+  /* Ocultar "Completado" en hover */
+  .btn-badge-complete:hover .text-completado,
+  .btn-badge-complete:hover .icon-completado {
+    display: none;
+  }
+
+  /* Mostrar "Desmarcar" en hover */
+  .btn-badge-complete:hover .text-desmarcar,
+  .btn-badge-complete:hover .icon-desmarcar {
+    display: inline;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold">Registro de progreso</h1>
+      <p class="text-secondary mb-0">Monitorea tu avance diario</p>
+    </div>
+  </div>
+
+  {% if habitos %} {% for habito in habitos %}
+  <div class="neumorphic-card">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h5 class="habit-title mb-1">{{ habito.nombre }}</h5>
+        <p class="text-muted mb-0">{{ habito.categoria }}</p>
+      </div>
+
+      <div>
+        {% if habito.completado %}
+        <form
+          action="{{ url_for('toggle_habito', habito_id=habito.id) }}"
+          method="POST"
+          class="m-0"
+        >
+          <button type="submit" class="btn rounded-pill btn-badge-complete">
+            <i class="bi bi-check-circle-fill icon-completado"></i>
+            <span class="text-completado"> Completado</span>
+            <i class="bi bi-x-lg icon-desmarcar"></i>
+            <span class="text-desmarcar"> Desmarcar</span>
+          </button>
+        </form>
+        {% else %}
+        <span class="badge rounded-pill bg-warning text-dark fs-6 px-3 py-2">
+          <i class="bi bi-clock-history"></i> Pendiente
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if not habito.completado %}
+    <form
+      action="{{ url_for('toggle_habito', habito_id=habito.id) }}"
+      method="POST"
+      class="m-0"
+    >
+      <button type="submit" class="btn btn-neumorphic w-100">
+        <i class="bi bi-check-lg"></i> Completar
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %} {% else %}
+  <div class="neumorphic-card text-center py-5">
+    <img
+      src="{{ url_for('static', filename='mascota.png') }}"
+      alt="Zorrito"
+      class="mb-4"
+      style="max-width: 120px"
+    />
+    <h4 class="fw-bold">Aún no tienes hábitos diarios</h4>
+    <p class="text-secondary">
+      Agrega uno para comenzar tu registro de progreso.
+    </p>
+    <a href="{{ url_for('habits') }}" class="btn btn-neumorphic btn-lg"
+      >Ir a mis hábitos</a
+    >
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

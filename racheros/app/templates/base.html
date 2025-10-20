@@ -249,6 +249,45 @@
                   >Login</a
                 >
               </li>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link dropdown-toggle {% if request.endpoint in ['habits', 'registro'] %}active{% endif %}"
+                  href="#"
+                  id="habitsDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Mis hábitos
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="habitsDropdown">
+                  <li>
+                    <a
+                      class="dropdown-item {% if request.endpoint == 'habits' %}active{% endif %}"
+                      href="{{ url_for('habits') }}"
+                    >
+                      Ver hábitos
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item {% if request.endpoint == 'registro_progreso' %}active{% endif %}"
+                      href="{{ url_for('registro_progreso') }}"
+                    >
+                      Registro de progreso
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item {% if request.endpoint == 'reportes' %}active{% endif %}"
+                      href="{{ url_for('reportes') }}"
+                    >
+                      Reportes
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
               <li class="nav-item">
                 <a
                   class="nav-link {% if request.endpoint == 'register' %}active{% endif %}"

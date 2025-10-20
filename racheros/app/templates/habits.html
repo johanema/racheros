@@ -1,0 +1,335 @@
+{% extends "base.html" %} {% block title %}Mis hábitos{% endblock %} {% block
+styles %}
+<style>
+  /* Estilos para las tarjetas de estadísticas */
+  .stat-card {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+      -8px -8px 15px var(--neumorphic-shadow-light-1);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  [data-bs-theme="dark"] .stat-card {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
+      -8px -8px 15px var(--neumorphic-shadow-dark-1);
+  }
+  .stat-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--racheros-orange);
+  }
+  [data-bs-theme="dark"] .stat-card .stat-value {
+    color: var(--racheros-cyan);
+  }
+  .stat-card .stat-label {
+    font-weight: 600;
+    color: var(--neumorphic-text-light);
+  }
+  [data-bs-theme="dark"] .stat-card .stat-label {
+    color: var(--neumorphic-text-dark);
+  }
+
+  /* (Aquí comienzan los estilos que ya tenías) */
+  .neumorphic-card-habit {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+      -8px -8px 15px var(--neumorphic-shadow-light-1);
+    border: none;
+    transition: all 0.3s ease;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  [data-bs-theme="dark"] .neumorphic-card-habit {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
+      -8px -8px 15px var(--neumorphic-shadow-dark-1);
+  }
+
+  .habit-actions a,
+  .habit-actions button {
+    color: var(--neumorphic-text-light);
+    font-size: 1.2rem;
+    margin-left: 1rem;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  [data-bs-theme="dark"] .habit-actions a,
+  [data-bs-theme="dark"] .habit-actions button {
+    color: var(--neumorphic-text-dark);
+  }
+  .habit-actions a:hover,
+  .habit-actions button:hover {
+    color: var(--racheros-orange);
+  }
+  [data-bs-theme="dark"] .habit-actions a:hover,
+  [data-bs-theme="dark"] .habit-actions button:hover {
+    color: var(--racheros-cyan);
+  }
+
+  .empty-state-container {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+  .empty-state-container img {
+    max-width: 150px;
+    margin-bottom: 2rem;
+  }
+
+  .modal-content {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 12px 12px 24px var(--neumorphic-shadow-light-2),
+      -12px -12px 24px var(--neumorphic-shadow-light-1);
+    border: none;
+  }
+  [data-bs-theme="dark"] .modal-content {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 12px 12px 24px var(--neumorphic-shadow-dark-2),
+      -12px -12px 24px var(--neumorphic-shadow-dark-1);
+  }
+  .modal-header,
+  .modal-footer {
+    border: none;
+  }
+
+  .neumorphic-input,
+  .neumorphic-select,
+  .neumorphic-textarea {
+    border-radius: 20px;
+    border: none;
+    background: var(--neumorphic-bg-light);
+    box-shadow: inset 7px 7px 14px var(--neumorphic-shadow-light-2),
+      inset -7px -7px 14px var(--neumorphic-shadow-light-1);
+    color: var(--neumorphic-text-light);
+    padding: 1rem 1.5rem;
+    height: auto;
+  }
+  [data-bs-theme="dark"] .neumorphic-input,
+  [data-bs-theme="dark"] .neumorphic-select,
+  [data-bs-theme="dark"] .neumorphic-textarea {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: inset 7px 7px 14px var(--neumorphic-shadow-dark-2),
+      inset -7px -7px 14px var(--neumorphic-shadow-dark-1);
+    color: var(--neumorphic-text-dark);
+  }
+
+  .btn-neumorphic {
+    border-radius: 20px;
+    border: none;
+    font-weight: 600;
+    padding: 0.9rem;
+    color: white;
+    background: var(--racheros-orange);
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-light-2),
+      -6px -6px 12px var(--neumorphic-shadow-light-1);
+    transition: all 0.2s ease-in-out;
+  }
+  [data-bs-theme="dark"] .btn-neumorphic {
+    background: var(--racheros-cyan);
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-dark-2),
+      -6px -6px 12px var(--neumorphic-shadow-dark-1);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Sección de Estadísticas de Racha -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3 mb-md-0">
+      <div class="stat-card">
+        <div class="stat-value">🔥 {{ racha_actual }}</div>
+        <div class="stat-label">Racha Actual</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="stat-card">
+        <div class="stat-value">🏆 {{ mejor_racha }}</div>
+        <div class="stat-label">Mejor Racha</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encabezado de la lista de hábitos -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold">Mis hábitos</h1>
+      <p class="text-secondary mb-0">Gestiona todas tus rachas.</p>
+    </div>
+    <button
+      class="btn btn-neumorphic"
+      data-bs-toggle="modal"
+      data-bs-target="#habitoModal"
+      id="btn-crear-habito"
+    >
+      <i class="bi bi-plus-lg"></i> Crear hábito
+    </button>
+  </div>
+
+  {% if habitos %} {% for habito in habitos %}
+  <div
+    class="neumorphic-card-habit d-flex justify-content-between align-items-center"
+  >
+    <div>
+      <h5 class="fw-bold mb-1">{{ habito.nombre_habito }}</h5>
+      <span class="badge rounded-pill text-bg-secondary me-2"
+        >{{ habito.frecuencia }}</span
+      >
+      <span class="badge rounded-pill text-bg-info"
+        >{{ habito.categoria }}</span
+      >
+    </div>
+    <div class="habit-actions">
+      <button
+        class="edit-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#habitoModal"
+        title="Editar"
+        data-id="{{ habito.id }}"
+        data-nombre="{{ habito.nombre_habito }}"
+        data-descripcion="{{ habito.descripcion }}"
+        data-frecuencia="{{ habito.frecuencia }}"
+        data-categoria="{{ habito.id_categoria }}"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </button>
+      <form
+        action="{{ url_for('eliminar_habito', habito_id=habito.id) }}"
+        method="post"
+        class="d-inline"
+        onsubmit="return confirm('¿Estás seguro de que quieres eliminar este hábito?');"
+      >
+        <button type="submit" title="Eliminar">
+          <i class="bi bi-trash3"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <div class="neumorphic-card-habit">
+    <div class="empty-state-container">
+      <img
+        src="{{ url_for('static', filename='mascota.png') }}"
+        alt="Mascota Racheros"
+      />
+      <h3 class="fw-bold">¡Tu viaje comienza ahora!</h3>
+      <p class="text-secondary mb-4">
+        Aún no has creado ningún hábito. ¡Forja tu primera racha!
+      </p>
+      <button
+        class="btn btn-neumorphic btn-lg"
+        data-bs-toggle="modal"
+        data-bs-target="#habitoModal"
+      >
+        Crea tu primer hábito
+      </button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal para Crear/Editar Hábito -->
+<div
+  class="modal fade"
+  id="habitoModal"
+  tabindex="-1"
+  aria-labelledby="habitoModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="habitoModalLabel">Nuevo hábito</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          id="habito-form"
+          action="{{ url_for('crear_habito') }}"
+          method="post"
+        >
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.nombre_habito.label(class="form-label") }} {{
+            form.nombre_habito(class="form-control neumorphic-input",
+            id="form_nombre_habito") }}
+          </div>
+          <div class="mb-3">
+            {{ form.descripcion.label(class="form-label") }} {{
+            form.descripcion(class="form-control neumorphic-textarea", rows="3",
+            id="form_descripcion") }}
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6 mb-3">
+              {{ form.frecuencia.label(class="form-label") }} {{
+              form.frecuencia(class="form-select neumorphic-select",
+              id="form_frecuencia") }}
+            </div>
+            <div class="col-md-6 mb-3">
+              {{ form.categoria.label(class="form-label") }} {{
+              form.categoria(class="form-select neumorphic-select",
+              id="form_categoria") }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            {{ form.submit(class="btn btn-neumorphic") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const habitoModal = document.getElementById("habitoModal");
+    const modalForm = document.getElementById("habito-form");
+    const modalTitle = document.getElementById("habitoModalLabel");
+
+    // Evento que se dispara CADA VEZ que el modal se va a mostrar
+    habitoModal.addEventListener("show.bs.modal", function (event) {
+      const button = event.relatedTarget; // Botón que activó el modal
+
+      // Verificamos si es el botón de editar
+      if (button.classList.contains("edit-btn")) {
+        // Modo Editar
+        const habitoId = button.dataset.id;
+        const nombre = button.dataset.nombre;
+        const descripcion = button.dataset.descripcion;
+        const frecuencia = button.dataset.frecuencia;
+        const categoria = button.dataset.categoria;
+
+        modalTitle.textContent = "Editar Hábito";
+        modalForm.action = "/habits/editar/" + habitoId; // Actualizamos la URL del formulario
+
+        // Llenamos el formulario con los datos del hábito
+        document.getElementById("form_nombre_habito").value = nombre;
+        document.getElementById("form_descripcion").value = descripcion;
+        document.getElementById("form_frecuencia").value = frecuencia;
+        document.getElementById("form_categoria").value = categoria;
+      } else {
+        // Modo Crear (por defecto)
+        modalTitle.textContent = "Nuevo Hábito";
+        modalForm.action = "{{ url_for('crear_habito') }}"; // URL para crear
+        modalForm.reset(); // Limpiamos el formulario
+      }
+    });
+  });
+</script>
+{% endblock %}
