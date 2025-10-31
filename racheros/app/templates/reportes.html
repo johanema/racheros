@@ -28,6 +28,24 @@ styles %}
     transition: all 0.3s ease;
     padding: 1.5rem 2rem;
     margin-bottom: 1.5rem;
+    animation: fadeInUp 0.3s ease-out;
+    animation-fill-mode: both;
+  }
+
+  .report-card:nth-child(1) { animation-delay: 0.1s; }
+  .report-card:nth-child(2) { animation-delay: 0.2s; }
+  .report-card:nth-child(3) { animation-delay: 0.3s; }
+  .report-card:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .report-date {
@@ -86,6 +104,16 @@ styles %}
     cursor: not-allowed;
   }
 
+  .btn-neumorphic:focus {
+    outline: 2px solid var(--racheros-cyan);
+    outline-offset: 4px;
+  }
+
+  .report-card:focus-within {
+    outline: 2px solid var(--racheros-cyan);
+    outline-offset: 4px;
+  }
+
   .empty-state-container {
     text-align: center;
     padding: 4rem 2rem;
@@ -111,22 +139,18 @@ styles %}
       <div class="col-md-6">
         <ul class="list-unstyled mb-2 mb-md-0">
           <li class="d-flex align-items-center mb-2">
-            <i class="bi bi-check2-circle"></i> {{ reporte.completados }} / {{
-            reporte.total_habitos }} Hábitos completados
+            <i class="bi bi-check2-circle" aria-hidden="true"></i> 
+            <span class="ms-2">{{ reporte.completados }} / {{ reporte.total_habitos }} Hábitos completados</span>
           </li>
           <li class="d-flex align-items-center">
-            <i class="bi bi-fire"></i> Mejor racha semanal: {{
-            reporte.mejor_racha }} días
+            <i class="bi bi-fire" aria-hidden="true"></i> 
+            <span class="ms-2">Mejor racha semanal: {{ reporte.mejor_racha }} días</span>
           </li>
         </ul>
-        <div class="progress-bar-neumorphic mt-2">
+        <div class="progress-bar-neumorphic mt-2" role="progressbar" aria-valuenow="{{ reporte.porcentaje_cumplimiento }}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso semanal {{ reporte.porcentaje_cumplimiento }}%">
           <div
             class="progress-bar"
-            role="progressbar"
             style="width: {{ reporte.porcentaje_cumplimiento }}%;"
-            aria-valuenow="{{ reporte.porcentaje_cumplimiento }}"
-            aria-valuemin="0"
-            aria-valuemax="100"
           ></div>
         </div>
       </div>

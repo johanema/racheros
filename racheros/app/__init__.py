@@ -12,4 +12,3 @@ bootstrap = Bootstrap5(app)
 
 # Importamos las rutas al final para evitar importaciones circulares
 from app import routes
-
