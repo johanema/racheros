@@ -1,129 +1,5 @@
 {% extends "base.html" %} {% block title %}Mis reportes{% endblock %} {% block
-styles %}
-<style>
-  :root {
-    --override-bg: var(--neumorphic-bg-light);
-    --override-text: var(--neumorphic-text-light);
-    --override-shadow-1: var(--neumorphic-shadow-light-1);
-    --override-shadow-2: var(--neumorphic-shadow-light-2);
-  }
-
-  [data-bs-theme="dark"] {
-    --override-bg: var(--neumorphic-bg-dark);
-    --override-text: var(--neumorphic-text-dark);
-    --override-shadow-1: var(--neumorphic-shadow-dark-1);
-    --override-shadow-2: var(--neumorphic-shadow-dark-2);
-  }
-
-  .reports-container {
-    color: var(--override-text);
-  }
-
-  .report-card {
-    border-radius: 30px;
-    background: var(--override-bg);
-    box-shadow: 10px 10px 20px var(--override-shadow-2),
-      -10px -10px 20px var(--override-shadow-1);
-    border: none;
-    transition: all 0.3s ease;
-    padding: 1.5rem 2rem;
-    margin-bottom: 1.5rem;
-    animation: fadeInUp 0.3s ease-out;
-    animation-fill-mode: both;
-  }
-
-  .report-card:nth-child(1) { animation-delay: 0.1s; }
-  .report-card:nth-child(2) { animation-delay: 0.2s; }
-  .report-card:nth-child(3) { animation-delay: 0.3s; }
-  .report-card:nth-child(4) { animation-delay: 0.4s; }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .report-date {
-    font-weight: 700;
-    font-size: 1.2rem;
-  }
-
-  .report-stats li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-  }
-
-  .report-stats .bi {
-    font-size: 1.2rem;
-    margin-right: 0.75rem;
-    color: var(--racheros-cyan);
-  }
-
-  .progress-bar-neumorphic {
-    height: 10px;
-    border-radius: 5px;
-    background-color: var(--override-bg);
-    box-shadow: inset 3px 3px 6px var(--override-shadow-2),
-      inset -3px -3px 6px var(--override-shadow-1);
-  }
-  .progress-bar {
-    background-color: var(--racheros-cyan) !important;
-    border-radius: 5px;
-  }
-
-  .btn-neumorphic {
-    border-radius: 20px;
-    border: none;
-    font-weight: 600;
-    padding: 0.9rem;
-    color: white;
-    background: var(--racheros-cyan);
-    box-shadow: 6px 6px 12px var(--override-shadow-2),
-      -6px -6px 12px var(--override-shadow-1);
-    transition: all 0.2s ease-in-out;
-  }
-  .btn-neumorphic:hover {
-    color: white;
-    transform: translateY(-2px);
-  }
-  .btn-neumorphic:active {
-    color: white !important;
-    box-shadow: inset 4px 4px 8px #05849e, inset -4px -4px 8px #07e8ff !important;
-  }
-  .btn-neumorphic:disabled {
-    background: #34495e;
-    color: #95a5a6;
-    box-shadow: inset 3px 3px 6px #2c3e50, inset -3px -3px 6px #3c546e;
-    cursor: not-allowed;
-  }
-
-  .btn-neumorphic:focus {
-    outline: 2px solid var(--racheros-cyan);
-    outline-offset: 4px;
-  }
-
-  .report-card:focus-within {
-    outline: 2px solid var(--racheros-cyan);
-    outline-offset: 4px;
-  }
-
-  .empty-state-container {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-  .empty-state-container img {
-    max-width: 150px;
-    margin-bottom: 2rem;
-  }
-</style>
-{% endblock %} {% block content %}
+content %}
 <div class="container py-4 reports-container">
   <div class="text-center mb-5">
     <h1 class="h3 fw-bold">Historial de reportes semanales</h1>
@@ -133,41 +9,62 @@ styles %}
   {% if reportes %} {% for reporte in reportes %}
   <div class="report-card">
     <div class="row align-items-center">
+      <!-- FECHA -->
       <div class="col-md-3">
         <p class="report-date mb-2 mb-md-0">{{ reporte.semana }}</p>
       </div>
+
+      <!-- ESTADÍSTICAS -->
       <div class="col-md-6">
         <ul class="list-unstyled mb-2 mb-md-0">
           <li class="d-flex align-items-center mb-2">
-            <i class="bi bi-check2-circle" aria-hidden="true"></i> 
-            <span class="ms-2">{{ reporte.completados }} / {{ reporte.total_habitos }} Hábitos completados</span>
+            <i class="bi bi-check2-circle"></i>
+            <span class="ms-2">
+              {{ reporte.completados }} / {{ reporte.total_habitos }} Hábitos
+              completados
+            </span>
           </li>
           <li class="d-flex align-items-center">
-            <i class="bi bi-fire" aria-hidden="true"></i> 
-            <span class="ms-2">Mejor racha semanal: {{ reporte.mejor_racha }} días</span>
+            <i class="bi bi-fire"></i>
+            <span class="ms-2">
+              Mejor racha semanal: {{ reporte.mejor_racha }} días
+            </span>
           </li>
         </ul>
-        <div class="progress-bar-neumorphic mt-2" role="progressbar" aria-valuenow="{{ reporte.porcentaje_cumplimiento }}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso semanal {{ reporte.porcentaje_cumplimiento }}%">
+
+        <!-- Barra de progreso -->
+        <div class="progress-bar-neumorphic mt-2">
           <div
             class="progress-bar"
-            style="width: {{ reporte.porcentaje_cumplimiento }}%;"
+            style="width: {{ reporte.porcentaje_cumplimiento }}%"
           ></div>
         </div>
       </div>
+
+      <!-- BOTÓN DESCARGA -->
       <div class="col-md-3 text-md-end mt-3 mt-md-0">
-        {% if reporte.ruta_pdf_s3 %}
-        <a href="{{ reporte.ruta_pdf_s3 }}" class="btn btn-neumorphic">
-          <i class="bi bi-file-earmark-arrow-down"></i> Descargar PDF
+        {% if reporte.ruta_local %}
+        <!-- Si el PDF existe → se descarga -->
+        <a
+          href="{{ url_for('descargar_reporte', nombre=reporte.nombre_pdf) }}"
+          class="btn btn-neumorphic"
+        >
+          <i class="bi bi-file-earmark-arrow-down"></i>
+          Descargar PDF
         </a>
+
         {% else %}
+        <!-- Si NO existe → deshabilitado -->
         <button class="btn btn-neumorphic" disabled>
-          <i class="bi bi-file-earmark-arrow-down"></i> No disponible
+          <i class="bi bi-file-earmark-arrow-down"></i>
+          No disponible
         </button>
         {% endif %}
       </div>
     </div>
   </div>
   {% endfor %} {% else %}
+  <!-- SI NO HAY REPORTES -->
   <div class="report-card">
     <div class="empty-state-container">
       <img
@@ -177,7 +74,6 @@ styles %}
       <h3 class="fw-bold">Aún no hay reportes</h3>
       <p class="text-secondary mb-0">
         Tu primer reporte semanal se generará automáticamente este domingo.
-        ¡Sigue con la racha!
       </p>
     </div>
   </div>

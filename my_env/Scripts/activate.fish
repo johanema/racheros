@@ -33,11 +33,11 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "C:\Users\johan\Downloads\cuatrimestre 7\Administración avanzada de infraestuctura virtualizada\flask\gestor"
+set -gx VIRTUAL_ENV "C:\Users\johan\Downloads\flask\my_env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/Scripts" $PATH
-set -gx VIRTUAL_ENV_PROMPT "gestor"
+set -gx VIRTUAL_ENV_PROMPT "my_env"
 
 # Unset PYTHONHOME if set.
 if set -q PYTHONHOME
@@ -57,7 +57,7 @@ if test -z "$VIRTUAL_ENV_DISABLE_PROMPT"
         set -l old_status $status
 
         # Output the venv prompt; color taken from the blue of the Python logo.
-        printf "%s(%s)%s " (set_color 4B8BBE) "gestor" (set_color normal)
+        printf "%s(%s)%s " (set_color 4B8BBE) "my_env" (set_color normal)
 
         # Restore the return status of the previous command.
         echo "exit $old_status" | .
