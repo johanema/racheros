@@ -1,0 +1,546 @@
+{% extends "base.html" %} {% block title %}Mi panel{% endblock %} {% block
+styles %}
+<style>
+  :root {
+    --override-bg: var(--neumorphic-bg-light);
+    --override-text: var(--neumorphic-text-light);
+    --override-shadow-light-1: var(--neumorphic-shadow-light-1);
+    --override-shadow-light-2: var(--neumorphic-shadow-light-2);
+    --btn-bg-light: var(--racheros-orange);
+    --btn-text-light: #ffffff;
+  }
+
+  [data-bs-theme="dark"] {
+    --override-bg: var(--neumorphic-bg-dark);
+    --override-text: var(--neumorphic-text-dark);
+    --override-shadow-light-1: var(--neumorphic-shadow-dark-1);
+    --override-shadow-light-2: var(--neumorphic-shadow-dark-2);
+    --btn-bg-dark: var(--racheros-cyan);
+    --btn-text-dark: #1a1a1a;
+  }
+
+  .neumorphic-card {
+    border-radius: 30px;
+    background: var(--override-bg);
+    box-shadow: 8px 8px 15px var(--override-shadow-light-2),
+      -8px -8px 15px var(--override-shadow-light-1);
+    border: none;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .neumorphic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 10px 10px 20px var(--override-shadow-light-2),
+      -10px -10px 20px var(--override-shadow-light-1);
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--racheros-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInUp 0.6s ease;
+  }
+
+  [data-bs-theme="dark"] .stat-value {
+    color: var(--racheros-cyan);
+  }
+
+  .stat-label {
+    font-weight: 600;
+    color: var(--neumorphic-text-light);
+  }
+
+  [data-bs-theme="dark"] .stat-label {
+    color: var(--neumorphic-text-dark);
+  }
+
+  .racha-logo {
+    height: 2.5rem;
+    width: auto;
+    margin-left: 0.5rem;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Mini estadísticos */
+  .mini-stat-card {
+    padding: 1rem;
+    text-align: center;
+    border-radius: 20px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: inset 3px 3px 6px var(--neumorphic-shadow-light-2),
+      inset -3px -3px 6px var(--neumorphic-shadow-light-1);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .mini-stat-card {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: inset 3px 3px 6px var(--neumorphic-shadow-dark-2),
+      inset -3px -3px 6px var(--neumorphic-shadow-dark-1);
+  }
+
+  .mini-stat-card:hover {
+    transform: scale(1.02);
+  }
+
+  .mini-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--racheros-orange);
+  }
+
+  [data-bs-theme="dark"] .mini-stat-value {
+    color: var(--racheros-cyan);
+  }
+
+  .mini-stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--neumorphic-text-light);
+    margin-top: 0.25rem;
+  }
+
+  [data-bs-theme="dark"] .mini-stat-label {
+    color: var(--neumorphic-text-dark);
+  }
+
+  /* Tendencias */
+  .trends-card h5 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .trend-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  .trend-item:hover {
+    padding-left: 0.5rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+  }
+
+  [data-bs-theme="dark"] .trend-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  [data-bs-theme="dark"] .trend-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .trend-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+    background: var(--neumorphic-bg-light);
+    box-shadow: inset 3px 3px 6px var(--neumorphic-shadow-light-2),
+      inset -3px -3px 6px var(--neumorphic-shadow-light-1);
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .trend-icon {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: inset 3px 3px 6px var(--neumorphic-shadow-dark-2),
+      inset -3px -3px 6px var(--neumorphic-shadow-dark-1);
+  }
+
+  .trend-icon.positive {
+    color: #10b981;
+  }
+
+  .trend-icon.neutral {
+    color: #f59e0b;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 250px;
+    margin-top: 1rem;
+  }
+
+  /* Botones con efecto neumórfico hundido (inset) en ambos modos */
+  .quick-action-btn,
+  .add-habit-btn {
+    border-radius: 20px;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Botón de Registro Diario - Efecto hundido (inset) con colores vibrantes */
+  .quick-action-btn {
+    background: var(--racheros-orange);
+    color: white;
+    box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.2),
+      inset -5px -5px 10px rgba(255, 255, 255, 0.1);
+  }
+
+  [data-bs-theme="dark"] .quick-action-btn {
+    background: var(--racheros-cyan);
+    color: #1a1a1a;
+    box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.4),
+      inset -5px -5px 10px rgba(255, 255, 255, 0.05);
+  }
+
+  /* Hover: el botón "sale" del fondo (efecto raised) */
+  .quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
+      -4px -4px 8px var(--neumorphic-shadow-light-1);
+  }
+
+  [data-bs-theme="dark"] .quick-action-btn:hover {
+    box-shadow: 4px 4px 8px var(--neumorphic-shadow-dark-2),
+      -4px -4px 8px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* Active: vuelve al estado hundido más profundo */
+  .quick-action-btn:active {
+    transform: translateY(0);
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.3),
+      inset -6px -6px 12px rgba(255, 255, 255, 0.05);
+  }
+
+  /* Botón de Añadir Hábito - Efecto hundido neutral */
+  .add-habit-btn {
+    background: var(--neumorphic-bg-light);
+    color: var(--neumorphic-text-light);
+    box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-light-2),
+      inset -5px -5px 10px var(--neumorphic-shadow-light-1);
+  }
+
+  [data-bs-theme="dark"] .add-habit-btn {
+    background: #2c3036;
+    color: var(--neumorphic-text-dark);
+    box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-dark-2),
+      inset -5px -5px 10px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* Hover: el botón "sale" del fondo */
+  .add-habit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
+      -4px -4px 8px var(--neumorphic-shadow-light-1);
+  }
+
+  [data-bs-theme="dark"] .add-habit-btn:hover {
+    box-shadow: 4px 4px 8px var(--neumorphic-shadow-dark-2),
+      -4px -4px 8px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* Active: vuelve al estado hundido */
+  .add-habit-btn:active {
+    transform: translateY(0);
+    box-shadow: inset 6px 6px 12px var(--neumorphic-shadow-light-2),
+      inset -6px -6px 12px var(--neumorphic-shadow-light-1);
+  }
+
+  [data-bs-theme="dark"] .add-habit-btn:active {
+    box-shadow: inset 6px 6px 12px var(--neumorphic-shadow-dark-2),
+      inset -6px -6px 12px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* Mejoras responsive */
+  @media (max-width: 768px) {
+    .neumorphic-card {
+      padding: 1.5rem;
+      border-radius: 20px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+    }
+
+    .chart-container {
+      height: 200px;
+    }
+
+    .quick-action-btn,
+    .add-habit-btn {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  /* Animación de entrada para las cards */
+  .animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .animate-in:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .animate-in:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .animate-in:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  .animate-in:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-5 fw-bold">Hola, {{ user.username }}</h1>
+      <p class="lead text-secondary">
+        Tu centro de mando para construir rachas.
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Columna izquierda: estadísticas principales -->
+    <div class="col-lg-8">
+      <div class="neumorphic-card animate-in">
+        <h4 class="fw-bold mb-4">
+          <i class="bi bi-graph-up"></i> Estadísticas y tendencias
+        </h4>
+
+        <!-- Mini estadísticas -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="mini-stat-card">
+              <div class="mini-stat-value">{{ estadisticas.racha_actual }}</div>
+              <div class="mini-stat-label">Días activos</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mini-stat-card">
+              <div class="mini-stat-value">
+                {{ estadisticas.porcentaje_semanal }}%
+              </div>
+              <div class="mini-stat-label">Esta semana</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mini-stat-card">
+              <div class="mini-stat-value">{{ habitos_de_hoy|length }}</div>
+              <div class="mini-stat-label">Hábitos activos</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico -->
+        <h5 class="fw-bold mb-3">Evolución semanal</h5>
+        <div class="chart-container">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna derecha: info lateral -->
+    <div class="col-lg-4">
+      <div class="neumorphic-card stat-card mb-4 animate-in">
+        <div class="stat-value">
+          {{ estadisticas.racha_actual }}
+          <img
+            src="{{ url_for('static', filename='icono.png') }}"
+            alt="Racha"
+            class="racha-logo"
+          />
+        </div>
+        <div class="stat-label">Días de racha actual</div>
+      </div>
+
+      <div class="neumorphic-card stat-card mb-4 animate-in">
+        <div class="stat-value">{{ estadisticas.porcentaje_semanal }}%</div>
+        <div class="stat-label">Completado esta semana</div>
+      </div>
+
+      <div class="neumorphic-card trends-card mb-4 animate-in">
+        <h5><i class="bi bi-lightning-charge"></i> Tendencias recientes</h5>
+
+        <div class="trend-item">
+          <div class="trend-icon positive"><i class="bi bi-arrow-up"></i></div>
+          <div>
+            <div class="fw-bold">Racha en aumento</div>
+            <small>+{{ estadisticas.racha_actual }} días consecutivos</small>
+          </div>
+        </div>
+
+        <div class="trend-item">
+          <div
+            class="trend-icon {% if estadisticas.porcentaje_semanal >= 70 %}positive{% else %}neutral{% endif %}"
+          >
+            <i
+              class="bi bi-{% if estadisticas.porcentaje_semanal >= 70 %}check-circle{% else %}clock{% endif %}"
+            ></i>
+          </div>
+          <div>
+            <div class="fw-bold">Rendimiento semanal</div>
+            <small
+              >{{ estadisticas.porcentaje_semanal }}% de hábitos
+              completados</small
+            >
+          </div>
+        </div>
+
+        <div class="trend-item">
+          <div class="trend-icon positive"><i class="bi bi-star"></i></div>
+          <div>
+            <div class="fw-bold">Hábitos activos</div>
+            <small>{{ habitos_de_hoy|length }} hábitos en seguimiento</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="neumorphic-card animate-in" style="padding: 1.5rem">
+        <h5 class="fw-bold mb-3">Acciones rápidas</h5>
+        <div class="d-grid gap-3">
+          <!-- Botón de Registro Diario con efecto neumórfico hundido -->
+          <a href="{{ url_for('registro_progreso') }}" class="quick-action-btn">
+            <i class="bi bi-calendar-check"></i> Registro diario
+          </a>
+          <!-- Botón de Añadir Hábito con efecto neumórfico hundido -->
+          <a href="{{ url_for('habits') }}" class="add-habit-btn">
+            <i class="bi bi-plus-lg"></i> Añadir hábito
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById("weeklyChart");
+    const isDark =
+      document.documentElement.getAttribute("data-bs-theme") === "dark";
+    const primaryColor = isDark ? "#22d3ee" : "#ea580c";
+    const textColor = isDark ? "#bdc1c6" : "#5b626d";
+    const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+
+    const weeklyData = [
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 7 else 0 }},
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 6 else 0 }},
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 5 else 0 }},
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 4 else 0 }},
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 3 else 0 }},
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 2 else 0 }},
+      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 1 else 0 }}
+    ];
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+        datasets: [
+          {
+            label: "Hábitos completados",
+            data: weeklyData,
+            borderColor: primaryColor,
+            backgroundColor: primaryColor + "20",
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          x: {
+            ticks: { color: textColor, font: { weight: '600' } },
+            grid: { color: gridColor, display: false }
+          },
+          y: {
+            ticks: { color: textColor, stepSize: 1 },
+            grid: { color: gridColor },
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: isDark ? '#2c3036' : '#ffffff',
+            titleColor: isDark ? '#e5e7eb' : '#1a1a1a',
+            bodyColor: isDark ? '#bdc1c6' : '#5b626d',
+            borderColor: isDark ? '#3d4148' : '#e5e7eb',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return 'Completados: ' + context.parsed.y;
+              }
+            }
+          }
+        },
+      },
+    });
+
+    const observer = new MutationObserver(() => {
+      const newIsDark = document.documentElement.getAttribute("data-bs-theme") === "dark";
+      if (newIsDark !== isDark) {
+        location.reload();
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-bs-theme']
+    });
+  });
+</script>
+{% endblock %}

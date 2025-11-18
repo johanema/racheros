@@ -1,0 +1,208 @@
+{% extends "base.html" %} {% block title %}Mis hábitos{% endblock %} {% block
+styles %}
+<style>
+  /* === TARJETAS (sin cambios) === */
+
+  .stat-card {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+      -8px -8px 15px var(--neumorphic-shadow-light-1);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  [data-bs-theme="dark"] .stat-card {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
+      -8px -8px 15px var(--neumorphic-shadow-dark-1);
+  }
+
+  .neumorphic-card-habit {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
+      -8px -8px 15px var(--neumorphic-shadow-light-1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  [data-bs-theme="dark"] .neumorphic-card-habit {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
+      -8px -8px 15px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* ======================================================
+      🎨 FORMULARIO NEUMÓRFICO (TUS ESTILOS RESTAURADOS) 
+     ====================================================== */
+
+  .modal-content {
+    border-radius: 30px;
+    background: var(--neumorphic-bg-light);
+    box-shadow: 12px 12px 24px var(--neumorphic-shadow-light-2),
+      -12px -12px 24px var(--neumorphic-shadow-light-1);
+  }
+  [data-bs-theme="dark"] .modal-content {
+    background: var(--neumorphic-bg-dark);
+    box-shadow: 12px 12px 24px var(--neumorphic-shadow-dark-2),
+      -12px -12px 24px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* 🔹 Inputs originales */
+  .neumorphic-input,
+  .neumorphic-select,
+  .neumorphic-textarea {
+    border-radius: 20px !important;
+    border: none !important;
+    background: var(--neumorphic-bg-light) !important;
+    padding: 1rem !important;
+    box-shadow: inset 7px 7px 14px var(--neumorphic-shadow-light-2),
+      inset -7px -7px 14px var(--neumorphic-shadow-light-1) !important;
+    color: var(--neumorphic-text-light) !important;
+  }
+
+  /* 🔹 Inputs en modo oscuro */
+  [data-bs-theme="dark"] .neumorphic-input,
+  [data-bs-theme="dark"] .neumorphic-select,
+  [data-bs-theme="dark"] .neumorphic-textarea {
+    background: var(--neumorphic-bg-dark) !important;
+    box-shadow: inset 7px 7px 14px var(--neumorphic-shadow-dark-2),
+      inset -7px -7px 14px var(--neumorphic-shadow-dark-1) !important;
+    color: var(--neumorphic-text-dark) !important;
+  }
+
+  /* 🔹 Botón naranja neumórfico */
+  .btn-neumorphic {
+    border-radius: 20px;
+    border: none;
+    padding: 0.9rem;
+    font-weight: 600;
+    color: white;
+    background: var(--racheros-orange);
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-light-2),
+      -6px -6px 12px var(--neumorphic-shadow-light-1);
+    transition: 0.2s;
+  }
+  [data-bs-theme="dark"] .btn-neumorphic {
+    background: var(--racheros-cyan);
+    box-shadow: 6px 6px 12px var(--neumorphic-shadow-dark-2),
+      -6px -6px 12px var(--neumorphic-shadow-dark-1);
+  }
+
+  /* Labels */
+  .form-label {
+    font-weight: 600;
+    color: var(--neumorphic-text-light);
+  }
+  [data-bs-theme="dark"] .form-label {
+    color: var(--neumorphic-text-dark);
+  }
+</style>
+{% endblock %} } {% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold">Mis hábitos</h1>
+
+    <button
+      class="btn btn-neumorphic"
+      data-bs-toggle="modal"
+      data-bs-target="#habitoModal"
+    >
+      <i class="bi bi-plus-lg"></i> Crear hábito
+    </button>
+  </div>
+
+  {% if habitos %} {% for habito in habitos %}
+  <div
+    class="neumorphic-card-habit d-flex justify-content-between align-items-center"
+  >
+    <div>
+      <h5 class="fw-bold">{{ habito.nombre_habito }}</h5>
+      <p class="text-secondary">{{ habito.descripcion }}</p>
+      <span class="badge text-bg-secondary">{{ habito.frecuencia }}</span>
+      <span class="badge text-bg-info">{{ habito.categoria }}</span>
+    </div>
+
+    <div class="habit-actions">
+      <form
+        action="{{ url_for('eliminar_habito', habito_id=habito.id_habito) }}"
+        method="POST"
+      >
+        <button><i class="bi bi-trash"></i></button>
+      </form>
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <p class="text-center text-secondary">No tienes hábitos aún.</p>
+  {% endif %}
+</div>
+
+<!-- MODAL -->
+<div class="modal fade" id="habitoModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nuevo hábito</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form
+          id="habito-form"
+          action="{{ url_for('crear_habito') }}"
+          method="POST"
+        >
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ form.nombre_habito.label(class="form-label") }} {{
+            form.nombre_habito(class="form-control neumorphic-input") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.descripcion.label(class="form-label") }} {{
+            form.descripcion(class="form-control neumorphic-textarea", rows="3")
+            }}
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.frecuencia.label(class="form-label") }} {{
+              form.frecuencia(class="form-select neumorphic-select") }}
+            </div>
+
+            <div class="col-md-6">
+              {{ form.categoria.label(class="form-label") }} {{
+              form.categoria(class="form-select neumorphic-select") }}
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              type="button"
+            >
+              Cancelar
+            </button>
+            {{ form.submit(class="btn btn-neumorphic") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("habitoModal");
+    const form = document.getElementById("habito-form");
+
+    modal.addEventListener("show.bs.modal", () => {
+      form.reset();
+      form.action = "{{ url_for('crear_habito') }}";
+    });
+  });
+</script>
+{% endblock %}

@@ -239,22 +239,35 @@
                 <a
                   class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
                   href="{{ url_for('index') }}"
-                  >Inicio</a
+                  >Dashboard</a
                 >
               </li>
               <li class="nav-item">
                 <a
-                  class="nav-link {% if request.endpoint == 'login' %}active{% endif %}"
-                  href="{{ url_for('login') }}"
-                  >Login</a
+                  class="nav-link {% if request.endpoint == 'registro_progreso' %}active{% endif %}"
+                  href="{{ url_for('registro_progreso') }}"
+                  >Registro diario</a
                 >
               </li>
               <li class="nav-item">
                 <a
-                  class="nav-link {% if request.endpoint == 'register' %}active{% endif %}"
-                  href="{{ url_for('register') }}"
-                  >Registro</a
+                  class="nav-link {% if request.endpoint == 'habits' %}active{% endif %}"
+                  href="{{ url_for('habits') }}"
+                  >Mis hábitos</a
                 >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if request.endpoint == 'reportes' %}active{% endif %}"
+                  href="{{ url_for('reportes') }}"
+                  >Reportes</a
+                >
+              </li>
+              <!-- Replaced Login/Register with Logout -->
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                  <i class="bi bi-box-arrow-right"></i>
+                </a>
               </li>
               <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
                 <div class="theme-switch-container">

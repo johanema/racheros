@@ -1,0 +1,254 @@
+{% extends "base.html" %} {% block title %}Registro Diario{% endblock %} {%
+block styles %}
+<style>
+  /* Theme-aware CSS variables that respect the theme toggle */
+  :root {
+    /* Light theme colors */
+    --registro-bg: #e0e5ec;
+    --registro-surface: #e0e5ec;
+    --registro-raised: #d1d9e6;
+    --registro-shadow-1: #ffffff;
+    --registro-shadow-2: #a3b1c6;
+    --registro-text: #5b626d;
+    --registro-text-secondary: rgba(0, 0, 0, 0.5);
+    --progress-red: #ef4444;
+    --progress-yellow: #f59e0b;
+    --progress-green: #10b981;
+  }
+
+  [data-bs-theme="dark"] {
+    /* Dark theme colors */
+    --registro-bg: #1a1d23;
+    --registro-surface: #252930;
+    --registro-raised: #2d3139;
+    --registro-shadow-1: #0f1115;
+    --registro-shadow-2: #353a44;
+    --registro-text: #e5e7eb;
+    --registro-text-secondary: rgba(255, 255, 255, 0.65);
+  }
+
+  .registro-container {
+    background: var(--registro-bg);
+    min-height: 100vh;
+    color: var(--registro-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .progress-3d-container {
+    background: var(--registro-surface);
+    border-radius: 30px;
+    padding: 2rem;
+    box-shadow: inset 8px 8px 16px var(--registro-shadow-1),
+      inset -8px -8px 16px var(--registro-shadow-2);
+    margin-bottom: 2rem;
+  }
+
+  .progress-bar-3d {
+    height: 30px;
+    border-radius: 15px;
+    background: var(--registro-surface);
+    box-shadow: inset 4px 4px 8px var(--registro-shadow-1),
+      inset -4px -4px 8px var(--registro-shadow-2);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 15px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 100%
+    );
+  }
+
+  .progress-red {
+    background: var(--progress-red);
+  }
+  .progress-yellow {
+    background: var(--progress-yellow);
+  }
+  .progress-green {
+    background: var(--progress-green);
+  }
+
+  .progress-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .habit-card-3d {
+    background: var(--registro-surface);
+    border-radius: 25px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 8px 8px 16px var(--registro-shadow-1),
+      -8px -8px 16px var(--registro-shadow-2);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .habit-card-3d.completed {
+    background: var(--registro-raised);
+    box-shadow: inset 4px 4px 8px var(--registro-shadow-1),
+      inset -4px -4px 8px var(--registro-shadow-2);
+  }
+
+  .check-btn-3d {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: var(--registro-surface);
+    box-shadow: 6px 6px 12px var(--registro-shadow-1),
+      -6px -6px 12px var(--registro-shadow-2);
+    color: #9ca3af;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .check-btn-3d.completed {
+    background: var(--racheros-cyan);
+    color: var(--registro-bg);
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+  }
+
+  .motivational-message {
+    background: var(--registro-surface);
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 4px 4px 8px var(--registro-shadow-1),
+      -4px -4px 8px var(--registro-shadow-2);
+    border-left: 4px solid var(--racheros-cyan);
+  }
+
+  .badge-cyan {
+    background: var(--racheros-orange);
+    color: white;
+  }
+
+  [data-bs-theme="dark"] .badge-cyan {
+    background: var(--racheros-cyan);
+    color: var(--registro-bg);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="registro-container">
+  <div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb" style="background: transparent">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('index') }}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Registro Diario</li>
+      </ol>
+    </nav>
+
+    <div class="text-center mb-4">
+      <h1 class="h2 fw-bold">Registro Diario</h1>
+      <p class="text-secondary">{{ today_date }}</p>
+    </div>
+
+    {% if completados_hoy < total_hoy %}
+    <div class="motivational-message">
+      <strong>{{ motivational_message }}</strong>
+    </div>
+    {% endif %}
+
+    <div class="progress-3d-container">
+      <div class="d-flex justify-content-between mb-3">
+        <h3 class="h5 mb-0">Progreso del Día</h3>
+        <span class="badge badge-cyan"
+          >{{ completados_hoy }} / {{ total_hoy }}</span
+        >
+      </div>
+
+      <div class="progress-bar-3d">
+        <div
+          class="progress-fill {% if porcentaje_completado < 40 %}progress-red {% elif porcentaje_completado < 80 %}progress-yellow {% else %}progress-green{% endif %}"
+          style="width: {{ porcentaje_completado }}%;"
+        ></div>
+      </div>
+
+      <div class="progress-label mt-2">{{ porcentaje_completado }}%</div>
+    </div>
+
+    {% if completados_hoy == total_hoy and total_hoy > 0 %}
+    <div class="celebration-card text-center">
+      <img
+        src="{{ url_for('static', filename='mascotafeliz.png') }}"
+        width="200"
+      />
+      <h2 class="h3 fw-bold mt-4" style="color: var(--racheros-cyan)">
+        ¡Nada por hacer!
+      </h2>
+      <p class="lead mb-4">Has completado todos tus hábitos del día 💙</p>
+      <a href="{{ url_for('reportes') }}" class="celebration-btn"
+        >Ver mis reportes</a
+      >
+    </div>
+
+    {% else %}
+    <div class="habits-list">
+      {% for habito in habitos_diarios %}
+      <div
+        class="habit-card-3d {% if habito.completado_hoy %}completed{% endif %}"
+        data-habit-id="{{ habito.id_habito }}"
+      >
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="flex-grow-1">
+            <h4 class="h5 mb-1">{{ habito.nombre_habito }}</h4>
+            <p class="text-secondary mb-0">{{ habito.descripcion }}</p>
+          </div>
+
+          <div class="ms-3">
+            <form
+              action="{{ url_for('toggle_habito', habito_id=habito.id_habito) }}"
+              method="POST"
+              class="habit-form"
+            >
+              <button
+                type="submit"
+                class="check-btn-3d {% if habito.completado_hoy %}completed{% endif %}"
+              >
+                <i
+                  class="bi {% if habito.completado_hoy %}bi-check-circle-fill{% else %}bi-circle{% endif %}"
+                ></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const forms = document.querySelectorAll(".habit-form");
+
+    forms.forEach((form) => {
+      form.addEventListener("submit", function () {
+        console.log("Marcando hábito…");
+      });
+    });
+  });
+</script>
+{% endblock %}

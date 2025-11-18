@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block title %}Mis reportes{% endblock %} {% block
+content %}
+<div class="container py-4 reports-container">
+  <div class="text-center mb-5">
+    <h1 class="h3 fw-bold">Historial de reportes semanales</h1>
+    <p class="text-secondary">Tu progreso a lo largo del tiempo.</p>
+  </div>
+
+  {% if reportes %} {% for reporte in reportes %}
+  <div class="report-card">
+    <div class="row align-items-center">
+      <!-- FECHA -->
+      <div class="col-md-3">
+        <p class="report-date mb-2 mb-md-0">{{ reporte.semana }}</p>
+      </div>
+
+      <!-- ESTADÍSTICAS -->
+      <div class="col-md-6">
+        <ul class="list-unstyled mb-2 mb-md-0">
+          <li class="d-flex align-items-center mb-2">
+            <i class="bi bi-check2-circle"></i>
+            <span class="ms-2">
+              {{ reporte.completados }} / {{ reporte.total_habitos }} Hábitos
+              completados
+            </span>
+          </li>
+          <li class="d-flex align-items-center">
+            <i class="bi bi-fire"></i>
+            <span class="ms-2">
+              Mejor racha semanal: {{ reporte.mejor_racha }} días
+            </span>
+          </li>
+        </ul>
+
+        <!-- Barra de progreso -->
+        <div class="progress-bar-neumorphic mt-2">
+          <div
+            class="progress-bar"
+            style="width: {{ reporte.porcentaje_cumplimiento }}%"
+          ></div>
+        </div>
+      </div>
+
+      <!-- BOTÓN DESCARGA -->
+      <div class="col-md-3 text-md-end mt-3 mt-md-0">
+        {% if reporte.ruta_local %}
+        <!-- Si el PDF existe → se descarga -->
+        <a
+          href="{{ url_for('descargar_reporte', nombre=reporte.nombre_pdf) }}"
+          class="btn btn-neumorphic"
+        >
+          <i class="bi bi-file-earmark-arrow-down"></i>
+          Descargar PDF
+        </a>
+
+        {% else %}
+        <!-- Si NO existe → deshabilitado -->
+        <button class="btn btn-neumorphic" disabled>
+          <i class="bi bi-file-earmark-arrow-down"></i>
+          No disponible
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <!-- SI NO HAY REPORTES -->
+  <div class="report-card">
+    <div class="empty-state-container">
+      <img
+        src="{{ url_for('static', filename='zorrito.png') }}"
+        alt="Mascota Racheros"
+      />
+      <h3 class="fw-bold">Aún no hay reportes</h3>
+      <p class="text-secondary mb-0">
+        Tu primer reporte semanal se generará automáticamente este domingo.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
