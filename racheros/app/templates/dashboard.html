@@ -187,7 +187,6 @@ styles %}
   .trend-icon.positive {
     color: #10b981;
   }
-
   .trend-icon.neutral {
     color: #f59e0b;
   }
@@ -198,7 +197,7 @@ styles %}
     margin-top: 1rem;
   }
 
-  /* Botones con efecto neumórfico hundido (inset) en ambos modos */
+  /* Botones */
   .quick-action-btn,
   .add-habit-btn {
     border-radius: 20px;
@@ -214,7 +213,6 @@ styles %}
     transition: all 0.2s ease-in-out;
   }
 
-  /* Botón de Registro Diario - Efecto hundido (inset) con colores vibrantes */
   .quick-action-btn {
     background: var(--racheros-orange);
     color: white;
@@ -229,7 +227,6 @@ styles %}
       inset -5px -5px 10px rgba(255, 255, 255, 0.05);
   }
 
-  /* Hover: el botón "sale" del fondo (efecto raised) */
   .quick-action-btn:hover {
     transform: translateY(-2px);
     box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
@@ -241,14 +238,12 @@ styles %}
       -4px -4px 8px var(--neumorphic-shadow-dark-1);
   }
 
-  /* Active: vuelve al estado hundido más profundo */
   .quick-action-btn:active {
     transform: translateY(0);
     box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.3),
       inset -6px -6px 12px rgba(255, 255, 255, 0.05);
   }
 
-  /* Botón de Añadir Hábito - Efecto hundido neutral */
   .add-habit-btn {
     background: var(--neumorphic-bg-light);
     color: var(--neumorphic-text-light);
@@ -263,7 +258,6 @@ styles %}
       inset -5px -5px 10px var(--neumorphic-shadow-dark-1);
   }
 
-  /* Hover: el botón "sale" del fondo */
   .add-habit-btn:hover {
     transform: translateY(-2px);
     box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
@@ -275,7 +269,6 @@ styles %}
       -4px -4px 8px var(--neumorphic-shadow-dark-1);
   }
 
-  /* Active: vuelve al estado hundido */
   .add-habit-btn:active {
     transform: translateY(0);
     box-shadow: inset 6px 6px 12px var(--neumorphic-shadow-light-2),
@@ -287,21 +280,17 @@ styles %}
       inset -6px -6px 12px var(--neumorphic-shadow-dark-1);
   }
 
-  /* Mejoras responsive */
   @media (max-width: 768px) {
     .neumorphic-card {
       padding: 1.5rem;
       border-radius: 20px;
     }
-
     .stat-value {
       font-size: 2rem;
     }
-
     .chart-container {
       height: 200px;
     }
-
     .quick-action-btn,
     .add-habit-btn {
       padding: 0.875rem 1.25rem;
@@ -309,12 +298,10 @@ styles %}
     }
   }
 
-  /* Animación de entrada para las cards */
   .animate-in {
     animation: fadeInUp 0.6s ease forwards;
     opacity: 0;
   }
-
   .animate-in:nth-child(1) {
     animation-delay: 0.1s;
   }
@@ -340,14 +327,12 @@ styles %}
   </div>
 
   <div class="row">
-    <!-- Columna izquierda: estadísticas principales -->
     <div class="col-lg-8">
       <div class="neumorphic-card animate-in">
         <h4 class="fw-bold mb-4">
           <i class="bi bi-graph-up"></i> Estadísticas y tendencias
         </h4>
 
-        <!-- Mini estadísticas -->
         <div class="row mb-4">
           <div class="col-md-4">
             <div class="mini-stat-card">
@@ -371,7 +356,6 @@ styles %}
           </div>
         </div>
 
-        <!-- Gráfico -->
         <h5 class="fw-bold mb-3">Evolución semanal</h5>
         <div class="chart-container">
           <canvas id="weeklyChart"></canvas>
@@ -379,7 +363,6 @@ styles %}
       </div>
     </div>
 
-    <!-- Columna derecha: info lateral -->
     <div class="col-lg-4">
       <div class="neumorphic-card stat-card mb-4 animate-in">
         <div class="stat-value">
@@ -438,11 +421,9 @@ styles %}
       <div class="neumorphic-card animate-in" style="padding: 1.5rem">
         <h5 class="fw-bold mb-3">Acciones rápidas</h5>
         <div class="d-grid gap-3">
-          <!-- Botón de Registro Diario con efecto neumórfico hundido -->
           <a href="{{ url_for('registro_progreso') }}" class="quick-action-btn">
             <i class="bi bi-calendar-check"></i> Registro diario
           </a>
-          <!-- Botón de Añadir Hábito con efecto neumórfico hundido -->
           <a href="{{ url_for('habits') }}" class="add-habit-btn">
             <i class="bi bi-plus-lg"></i> Añadir hábito
           </a>
@@ -462,20 +443,25 @@ styles %}
     const textColor = isDark ? "#bdc1c6" : "#5b626d";
     const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
 
-    const weeklyData = [
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 7 else 0 }},
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 6 else 0 }},
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 5 else 0 }},
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 4 else 0 }},
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 3 else 0 }},
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 2 else 0 }},
-      {{ habitos_de_hoy|length if estadisticas.racha_actual >= 1 else 0 }}
-    ];
+    // 1. Etiquetas dinámicas de fecha (últimos 7 días)
+    const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    const labels = [];
+    const hoy = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(hoy);
+      d.setDate(hoy.getDate() - i);
+      labels.push(diasSemana[d.getDay()]);
+    }
+
+    // 2. DATOS REALES DEL BACKEND
+    // Flask inyecta la lista real [0, 1, 4, 0...] aquí
+    const weeklyData = {{ datos_grafico | tojson }};
 
     new Chart(ctx, {
       type: "line",
       data: {
-        labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+        labels: labels,
         datasets: [
           {
             label: "Hábitos completados",
@@ -508,6 +494,7 @@ styles %}
             ticks: { color: textColor, stepSize: 1 },
             grid: { color: gridColor },
             beginAtZero: true,
+            suggestedMax: 5 // Para que el gráfico no se vea muy pequeño si solo tienes 1 hábito
           },
         },
         plugins: {

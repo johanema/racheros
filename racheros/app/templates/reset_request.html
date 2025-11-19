@@ -1,0 +1,72 @@
+{% extends "base_auth.html" %} {% block title %}Recuperar contraseña{% endblock
+%} {% block content %}
+<div
+  class="auth-container d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-4 w-100"
+>
+  <!-- Usamos el mismo ancho que en el login (col-lg-10) -->
+  <div class="col-lg-10 col-xl-9">
+    <div class="card neumorphic-card">
+      <div class="card-body p-0">
+        <div class="row g-0">
+          <!-- PANEL IZQUIERDO: Branding (Idéntico al Login) -->
+          <div
+            class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center text-center p-5"
+          >
+            <img
+              src="{{ url_for('static', filename='mascota.png') }}"
+              alt="Mascota Racheros"
+              class="mb-4"
+              style="height: 12rem; width: auto"
+            />
+            <h2 class="h4 fw-bold">Recupera tu acceso</h2>
+            <p class="text-secondary">
+              No pierdas tu racha, vuelve a intentarlo.
+            </p>
+          </div>
+
+          <!-- PANEL DERECHO: Formulario -->
+          <div class="col-lg-6 p-4 p-md-5">
+            <div class="text-center mb-4">
+              <h1 class="h4 fw-bold">Recuperar cuenta</h1>
+              <p class="text-secondary small mb-0">
+                Ingresa tu correo y te enviaremos un enlace.
+              </p>
+            </div>
+
+            <form method="POST" action="">
+              {{ form.hidden_tag() }}
+
+              <div class="mb-4">
+                {{ form.email.label(class="form-label visually-hidden") }} {% if
+                form.email.errors %} {{ form.email(class="form-control
+                neumorphic-input is-invalid", placeholder="Correo electrónico")
+                }}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.email.errors %} {{ error }} {% endfor %}
+                </div>
+                {% else %} {{ form.email(class="form-control neumorphic-input",
+                placeholder="Correo electrónico") }} {% endif %}
+              </div>
+
+              <div class="d-grid gap-2">
+                {{ form.submit(class="btn neumorphic-btn") }}
+              </div>
+            </form>
+
+            <hr class="my-4" />
+
+            <div class="text-center">
+              <a
+                href="{{ url_for('login') }}"
+                class="text-orange fw-bold text-decoration-none small"
+              >
+                Volver al inicio de sesión
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

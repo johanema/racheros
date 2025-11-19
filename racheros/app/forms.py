@@ -28,3 +28,16 @@ class HabitForm(FlaskForm):
     frecuencia = SelectField('Frecuencia', choices=[('diario', 'Diario'), ('semanal', 'Semanal'), ('mensual', 'Mensual')], validators=[DataRequired()])
     categoria = SelectField('Categoría', coerce=int, validators=[DataRequired(message="Por favor, selecciona una categoría.")])
     submit = SubmitField('Guardar hábito')
+
+# --- NUEVOS FORMULARIOS PARA RECUPERAR CONTRASEÑA ---
+
+class RequestResetForm(FlaskForm):
+    """Formulario para solicitar el reseteo (ingresar correo)."""
+    email = StringField('Correo electrónico', validators=[DataRequired(), Email()])
+    submit = SubmitField('Enviar enlace de recuperación')
+
+class ResetPasswordForm(FlaskForm):
+    """Formulario para establecer la nueva contraseña."""
+    password = PasswordField('Nueva contraseña', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirmar contraseña', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Cambiar contraseña')

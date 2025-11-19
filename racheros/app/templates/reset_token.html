@@ -1,0 +1,67 @@
+{% extends "base_auth.html" %} {% block title %}Nueva contraseña{% endblock %}
+{% block content %}
+<div
+  class="auth-container d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-4 w-100"
+>
+  <div class="col-lg-10 col-xl-9">
+    <div class="card neumorphic-card">
+      <div class="card-body p-0">
+        <div class="row g-0">
+          <!-- PANEL IZQUIERDO: Branding -->
+          <div
+            class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center text-center p-5"
+          >
+            <img
+              src="{{ url_for('static', filename='mascota.png') }}"
+              alt="Mascota Racheros"
+              class="mb-4"
+              style="height: 12rem; width: auto"
+            />
+            <h2 class="h4 fw-bold">Casi listo</h2>
+            <p class="text-secondary">
+              Establece una nueva clave segura para tu cuenta.
+            </p>
+          </div>
+
+          <!-- PANEL DERECHO: Formulario -->
+          <div class="col-lg-6 p-4 p-md-5">
+            <div class="text-center mb-4">
+              <h1 class="h4 fw-bold">Nueva contraseña</h1>
+              <p class="text-secondary small">
+                Ingresa tu nueva contraseña a continuación.
+              </p>
+            </div>
+
+            <form method="POST" action="">
+              {{ form.hidden_tag() }}
+
+              <div class="mb-3">
+                {{ form.password.label(class="form-label visually-hidden") }} {{
+                form.password(class="form-control neumorphic-input",
+                placeholder="Nueva contraseña") }} {% for error in
+                form.password.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-4">
+                {{ form.confirm_password.label(class="form-label
+                visually-hidden") }} {{
+                form.confirm_password(class="form-control neumorphic-input",
+                placeholder="Confirmar contraseña") }} {% for error in
+                form.confirm_password.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="d-grid">
+                {{ form.submit(class="btn neumorphic-btn") }}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

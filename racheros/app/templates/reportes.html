@@ -32,11 +32,6 @@ styles %}
     animation-fill-mode: both;
   }
 
-  .report-card:nth-child(1) { animation-delay: 0.1s; }
-  .report-card:nth-child(2) { animation-delay: 0.2s; }
-  .report-card:nth-child(3) { animation-delay: 0.3s; }
-  .report-card:nth-child(4) { animation-delay: 0.4s; }
-
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -48,24 +43,6 @@ styles %}
     }
   }
 
-  .report-date {
-    font-weight: 700;
-    font-size: 1.2rem;
-  }
-
-  .report-stats li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-  }
-
-  .report-stats .bi {
-    font-size: 1.2rem;
-    margin-right: 0.75rem;
-    color: var(--racheros-cyan);
-  }
-
   .progress-bar-neumorphic {
     height: 10px;
     border-radius: 5px;
@@ -73,6 +50,7 @@ styles %}
     box-shadow: inset 3px 3px 6px var(--override-shadow-2),
       inset -3px -3px 6px var(--override-shadow-1);
   }
+
   .progress-bar {
     background-color: var(--racheros-cyan) !important;
     border-radius: 5px;
@@ -82,45 +60,41 @@ styles %}
     border-radius: 20px;
     border: none;
     font-weight: 600;
-    padding: 0.9rem;
+    padding: 0.8rem 1rem;
     color: white;
     background: var(--racheros-cyan);
     box-shadow: 6px 6px 12px var(--override-shadow-2),
       -6px -6px 12px var(--override-shadow-1);
     transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
   }
+
   .btn-neumorphic:hover {
     color: white;
     transform: translateY(-2px);
   }
+
   .btn-neumorphic:active {
-    color: white !important;
-    box-shadow: inset 4px 4px 8px #05849e, inset -4px -4px 8px #07e8ff !important;
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
   }
-  .btn-neumorphic:disabled {
+
+  /* Estilo específico para el botón de Excel */
+  .btn-excel {
+    background-color: #10b981 !important; /* Verde esmeralda */
+  }
+
+  .btn-disabled {
     background: #34495e;
     color: #95a5a6;
-    box-shadow: inset 3px 3px 6px #2c3e50, inset -3px -3px 6px #3c546e;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
     cursor: not-allowed;
-  }
-
-  .btn-neumorphic:focus {
-    outline: 2px solid var(--racheros-cyan);
-    outline-offset: 4px;
-  }
-
-  .report-card:focus-within {
-    outline: 2px solid var(--racheros-cyan);
-    outline-offset: 4px;
-  }
-
-  .empty-state-container {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-  .empty-state-container img {
-    max-width: 150px;
-    margin-bottom: 2rem;
+    pointer-events: none;
   }
 </style>
 {% endblock %} {% block content %}
@@ -134,52 +108,81 @@ styles %}
   <div class="report-card">
     <div class="row align-items-center">
       <div class="col-md-3">
-        <p class="report-date mb-2 mb-md-0">{{ reporte.semana }}</p>
+        <p class="fw-bold mb-2 mb-md-0">
+          Semana del:<br />{{ reporte.semana }}
+        </p>
       </div>
-      <div class="col-md-6">
+
+      <div class="col-md-5">
         <ul class="list-unstyled mb-2 mb-md-0">
           <li class="d-flex align-items-center mb-2">
-            <i class="bi bi-check2-circle" aria-hidden="true"></i> 
-            <span class="ms-2">{{ reporte.completados }} / {{ reporte.total_habitos }} Hábitos completados</span>
+            <i class="bi bi-check2-circle text-success"></i>
+            <span class="ms-2">
+              {{ reporte.completados }} / {{ reporte.total_habitos }} Hábitos
+              completados
+            </span>
           </li>
           <li class="d-flex align-items-center">
-            <i class="bi bi-fire" aria-hidden="true"></i> 
-            <span class="ms-2">Mejor racha semanal: {{ reporte.mejor_racha }} días</span>
+            <i class="bi bi-fire text-danger"></i>
+            <span class="ms-2"> Días activos: {{ reporte.mejor_racha }} </span>
           </li>
         </ul>
-        <div class="progress-bar-neumorphic mt-2" role="progressbar" aria-valuenow="{{ reporte.porcentaje_cumplimiento }}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso semanal {{ reporte.porcentaje_cumplimiento }}%">
+
+        <div class="progress-bar-neumorphic mt-3">
           <div
             class="progress-bar"
+            role="progressbar"
             style="width: {{ reporte.porcentaje_cumplimiento }}%;"
+            aria-valuenow="{{ reporte.porcentaje_cumplimiento }}"
+            aria-valuemin="0"
+            aria-valuemax="100"
           ></div>
         </div>
       </div>
-      <div class="col-md-3 text-md-end mt-3 mt-md-0">
-        {% if reporte.ruta_pdf_s3 %}
-        <a href="{{ reporte.ruta_pdf_s3 }}" class="btn btn-neumorphic">
-          <i class="bi bi-file-earmark-arrow-down"></i> Descargar PDF
-        </a>
-        {% else %}
-        <button class="btn btn-neumorphic" disabled>
-          <i class="bi bi-file-earmark-arrow-down"></i> No disponible
-        </button>
-        {% endif %}
+
+      <div class="col-md-4 text-md-end mt-4 mt-md-0">
+        <div
+          class="d-flex flex-column flex-sm-row gap-2 justify-content-md-end"
+        >
+          {% if reporte.archivo_pdf %}
+          <a
+            href="{{ url_for('static', filename='reportes/' + reporte.archivo_pdf) }}"
+            class="btn btn-neumorphic"
+            download
+            target="_blank"
+          >
+            <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+          </a>
+          {% endif %} {% if reporte.archivo_excel %}
+          <a
+            href="{{ url_for('static', filename='reportes/' + reporte.archivo_excel) }}"
+            class="btn btn-neumorphic btn-excel"
+            download
+          >
+            <i class="bi bi-file-earmark-excel-fill"></i> Excel
+          </a>
+          {% endif %} {% if not reporte.archivo_pdf and not
+          reporte.archivo_excel %}
+          <span class="btn btn-neumorphic btn-disabled">
+            <i class="bi bi-x-circle"></i> No disponible
+          </span>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
   {% endfor %} {% else %}
-  <div class="report-card">
-    <div class="empty-state-container">
-      <img
-        src="{{ url_for('static', filename='zorrito.png') }}"
-        alt="Mascota Racheros"
-      />
-      <h3 class="fw-bold">Aún no hay reportes</h3>
-      <p class="text-secondary mb-0">
-        Tu primer reporte semanal se generará automáticamente este domingo.
-        ¡Sigue con la racha!
-      </p>
-    </div>
+  <div class="report-card text-center py-5">
+    <img
+      src="{{ url_for('static', filename='zorrito.png') }}"
+      style="max-width: 150px; margin-bottom: 20px; opacity: 0.8"
+      alt="Mascota vacía"
+    />
+    <h3 class="fw-bold">Aún no hay reportes</h3>
+    <p class="text-secondary mb-0">
+      Completa tus hábitos esta semana para generar tus primeros reportes
+      automáticamente.
+    </p>
   </div>
   {% endif %}
 </div>

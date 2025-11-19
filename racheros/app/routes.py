@@ -1,246 +1,403 @@
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import render_template, flash, redirect, url_for, request, session, make_response
 from app import app
-from app.forms import LoginForm, RegistrationForm, HabitForm
+# IMPORTANTE: Añadimos los formularios de recuperación que faltaban
+from app.forms import LoginForm, RegistrationForm, HabitForm, RequestResetForm, ResetPasswordForm
 from datetime import date, timedelta
 from functools import wraps
-import random
+from itsdangerous import URLSafeTimedSerializer # Para generar tokens seguros
 
-# --- "Base de datos" simulada principal (sin cambios) ---
-habitos_db = [
-    {'id': 1, 'nombre_habito': 'Leer 30 minutos al día', 'descripcion': 'Un capítulo de un libro de no-ficción.', 'frecuencia': 'Diario', 'id_categoria': 2, 'categoria': 'Crecimiento Personal'},
-    {'id': 2, 'nombre_habito': 'Hacer ejercicio', 'descripcion': 'Rutina de 45 minutos en el gimnasio.', 'frecuencia': 'Semanal', 'id_categoria': 1, 'categoria': 'Salud'},
-    {'id': 3, 'nombre_habito': 'Meditar 10 minutos', 'descripcion': 'Usando una app de meditación guiada.', 'frecuencia': 'Diario', 'id_categoria': 3, 'categoria': 'Bienestar Mental'}
-]
-categorias_db = {1: 'Salud', 2: 'Crecimiento personal', 3: 'Bienestar mental'}
-next_habit_id = 4
+# ==== IMPORTS DEL BACKEND REAL ====
+from app.backend.db_connection import get_connection
+# Añadimos las funciones de verificar correo y actualizar contraseña
+from app.backend.ms_usuarios import login_usuario, crear_usuario, verificar_correo_existe, actualizar_contrasena
+from app.backend.ms_habitos import (
+    crear_habito as crear_habito_micro,
+    actualizar_habito as actualizar_habito_micro,
+    eliminar_habito as eliminar_habito_micro,
+    listar_habitos_por_usuario
+)
+from app.backend.ms_progreso import registrar_progreso
+from app.backend.ms_reportes import generar_reporte_semanal
+# ===================================
 
-# --- "Base de datos" simulada para el progreso (sin cambios) ---
-progreso_diario_db = {}
-today = date.today()
-for i in range(15):
-    current_date = today - timedelta(days=i)
-    date_str = current_date.isoformat()
-    progreso_diario_db[date_str] = {}
-    habitos_diarios = [h for h in habitos_db if h['frecuencia'] == 'Diario']
-    for habito in habitos_diarios:
-        if random.random() > 0.3:
-            progreso_diario_db[date_str][habito['id']] = True
+# --- CONFIGURACIÓN DE SEGURIDAD Y SESIÓN (Ya lo tenías bien) ---
 
+@app.before_request
+def session_management():
+    """
+    Configura la duración de la sesión dinámicamente.
+    - Si marcó 'Recuérdame': 30 días.
+    - Si NO marcó 'Recuérdame': 5 minutos.
+    """
+    session.permanent = True
+    
+    if session.get("remember_me"):
+        app.permanent_session_lifetime = timedelta(days=30)
+    else:
+        app.permanent_session_lifetime = timedelta(minutes=5)
+
+@app.after_request
+def add_header(response):
+    """
+    Deshabilita la caché del navegador para proteger rutas privadas.
+    """
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+# --- LÓGICA DE RECUPERACIÓN DE CONTRASEÑA (Agregada de nuevo) ---
+
+def get_reset_token(email, expires_sec=1800):
+    """Genera un token seguro que expira en 30 min."""
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return s.dumps(email, salt='email-reset-salt')
+
+def verify_reset_token(token):
+    """Verifica si el token es válido."""
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = s.loads(token, salt='email-reset-salt', max_age=1800)
+    except:
+        return None
+    return email
+
+def send_reset_email(user_email, token):
+    """Simula el envío imprimiendo en consola."""
+    link = url_for('reset_token', token=token, _external=True)
+    print("\n" + "="*50)
+    print(f" [SIMULACIÓN DE CORREO] Para: {user_email}")
+    print(f" Enlace de recuperación: {link}")
+    print("="*50 + "\n")
+
+# -------------------------------------------
+
+# ========= LOGIN REQUIRED ==========
 def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in'):
-            flash('Por favor inicia sesión para acceder a esta página.', 'warning')
-            return redirect(url_for('login'))
+    def decorated(*args, **kwargs):
+        if "id_usuario" not in session:
+            flash("Inicia sesión para acceder.", "warning")
+            return redirect(url_for("login"))
         return f(*args, **kwargs)
-    return decorated_function
+    return decorated
 
-# --- CORRECCIÓN: La función principal ahora se llama 'index' ---
-@app.route('/') 
-@app.route('/dashboard') # Mantenemos /dashboard por si hay enlaces antiguos
-@login_required
-def index(): # <-- FUNCIÓN RENOMBRADA DE 'dashboard' A 'index'
-    # --- Lógica para el Dashboard (sin cambios) ---
-    today = date.today()
-    today_str = today.isoformat()
-    habitos_hoy_raw = [h for h in habitos_db if h['frecuencia'] == 'Diario']
-    habitos_de_hoy = []
-    for habito in habitos_hoy_raw:
-        progreso_hoy = progreso_diario_db.get(today_str, {})
-        completado = progreso_hoy.get(habito['id'], False)
-        habitos_de_hoy.append({**habito, 'completado_hoy': completado})
+
+# ========= RUTAS DE RECUPERACIÓN (Agregadas) ============
+
+@app.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+    """Página donde pones tu correo para pedir el link."""
+    if "id_usuario" in session:
+        return redirect(url_for('index'))
     
-    racha_actual = 0
-    for i in range(len(progreso_diario_db)):
-        check_date = today - timedelta(days=i)
-        check_date_str = check_date.isoformat()
-        progreso_del_dia = progreso_diario_db.get(check_date_str, {})
-        if any(progreso_del_dia.values()):
-             racha_actual += 1
+    form = RequestResetForm()
+
+    # Lógica para pre-llenar el correo si viene del Login
+    if request.method == 'GET' and not form.email.data:
+        email_from_login = request.args.get('email')
+        if email_from_login:
+            form.email.data = email_from_login
+    
+    if form.validate_on_submit():
+        user = verificar_correo_existe(form.email.data)
+        if user:
+            token = get_reset_token(form.email.data)
+            send_reset_email(form.email.data, token)
+            flash('Se ha enviado un enlace a tu correo (Revisa la consola del servidor).', 'info')
+            return redirect(url_for('login'))
         else:
-             break
+            flash('No existe una cuenta con ese correo.', 'warning')
+            
+    return render_template('reset_request.html', title='Restablecer Contraseña', form=form)
 
-    completados_semana = 0
-    total_posibles_semana = 0
-    for i in range(7):
-        check_date = today - timedelta(days=i)
-        check_date_str = check_date.isoformat()
-        habitos_ese_dia = [h for h in habitos_db if h['frecuencia'] == 'Diario']
-        total_posibles_semana += len(habitos_ese_dia)
-        progreso_del_dia = progreso_diario_db.get(check_date_str, {})
-        completados_semana += sum(1 for status in progreso_del_dia.values() if status)
 
-    porcentaje_semanal = int((completados_semana / total_posibles_semana) * 100) if total_posibles_semana > 0 else 0
-    estadisticas = { 'racha_actual': racha_actual, 'porcentaje_semanal': porcentaje_semanal }
-    user = {'username': session.get('username', 'Usuario')}
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+    """Página donde pones la nueva contraseña."""
+    if "id_usuario" in session:
+        return redirect(url_for('index'))
+    
+    email = verify_reset_token(token)
+    if not email:
+        flash('El enlace es inválido o ha expirado.', 'warning')
+        return redirect(url_for('reset_request'))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        actualizar_contrasena(email, form.password.data)
+        flash('Tu contraseña ha sido actualizada. ¡Inicia sesión!', 'success')
+        return redirect(url_for('login'))
+        
+    return render_template('reset_token.html', title='Nueva Contraseña', form=form)
 
-    return render_template('dashboard.html', user=user, habitos_de_hoy=habitos_de_hoy, estadisticas=estadisticas)
 
-# --- CORRECCIÓN: La ruta de login ahora redirige a 'index' ---
+# ========= LOGIN REAL ============
 @app.route('/login', methods=['GET','POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        session['logged_in'] = True
-        session['username'] = form.username.data
-        flash(f'¡Bienvenido de vuelta, {form.username.data}!', 'success')
-        return redirect(url_for('index')) # <-- CORREGIDO a 'index'
-    return render_template('login.html', form=form)
 
+        resp = login_usuario(
+            correo=form.username.data,
+            contrasena=form.password.data
+        )
+
+        if not resp["ok"]:
+            flash("Usuario o contraseña incorrectos.", "danger")
+            return render_template("login.html", form=form)
+
+        session["logged_in"] = True
+        session["id_usuario"] = resp["user"]["id_usuario"]
+        
+        # --- GUARDAR PREFERENCIA DE RECUÉRDAME ---
+        session["remember_me"] = form.remember_me.data
+        # -----------------------------------------
+        
+        # Guardamos el nombre capitalizado
+        nombre_db = resp["user"]["nombre"]
+        session["username"] = nombre_db.title() if nombre_db else "Usuario"
+
+        flash(f"Bienvenido de nuevo, {session['username']}!", "success")
+        return redirect(url_for("index"))
+
+    return render_template("login.html", form=form)
+
+
+# ========= LOGOUT ============
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('Has cerrado sesión correctamente.', 'info')
-    return redirect(url_for('login'))
+    flash("Sesión cerrada.", "info")
+    return redirect(url_for("login"))
 
+
+# ========= DASHBOARD (INDEX) ============
+@app.route('/')
+@app.route('/dashboard')
+@login_required
+def index():
+    id_usuario = session["id_usuario"]
+    conn = get_connection()
+
+    today = date.today()
+    today_str = today.isoformat()
+
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            SELECT h.*, c.nombre_categoria
+            FROM habitos h
+            LEFT JOIN categorias c ON h.id_categoria = c.id_categoria
+            WHERE h.id_usuario = %s AND h.frecuencia = 'diario'
+        """, (id_usuario,))
+        habitos = cursor.fetchall()
+
+    completados_hoy_count = 0
+    for h in habitos:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT completado
+                FROM registro_progreso
+                WHERE id_habito = %s AND fecha = %s
+            """, (h["id_habito"], today_str))
+            row = cursor.fetchone()
+
+        h["completado_hoy"] = row["completado"] if row else False
+        if h["completado_hoy"]:
+            completados_hoy_count += 1
+
+    total_hoy = len(habitos)
+    porcentaje = int((completados_hoy_count / total_hoy) * 100) if total_hoy > 0 else 0
+
+    datos_grafico = []
+    for i in range(6, -1, -1):
+        fecha_str = (today - timedelta(days=i)).isoformat()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT COUNT(*) as total FROM registro_progreso r
+                INNER JOIN habitos h ON r.id_habito = h.id_habito
+                WHERE h.id_usuario = %s AND r.fecha = %s AND r.completado = 1
+            """, (id_usuario, fecha_str))
+            datos_grafico.append(cursor.fetchone()['total'])
+
+    racha_visual = 1 if completados_hoy_count > 0 else 0
+    estadisticas = {"racha_actual": racha_visual, "porcentaje_semanal": porcentaje}
+
+    return render_template(
+        "dashboard.html",
+        user={"username": session["username"]},
+        habitos_de_hoy=habitos,
+        estadisticas=estadisticas,
+        datos_grafico=datos_grafico 
+    )
+
+
+# ========= REGISTRO DE USUARIO ============
+@app.route('/register', methods=['GET','POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        nombre_limpio = form.nombre.data.strip().title()
+        
+        resp = crear_usuario(
+            nombre=nombre_limpio,
+            correo=form.correo.data,
+            contrasena=form.password.data,
+            genero=form.genero.data,
+            edad=form.edad.data
+        )
+        if resp["ok"]:
+            flash("Registrado correctamente. Por favor inicia sesión.", "success")
+            return redirect(url_for("login"))
+        else:
+            flash(f"Error: {resp.get('error', 'Error desconocido')}", "danger")
+            
+    return render_template("register.html", form=form)
+
+
+# ========= LISTAR HÁBITOS ============
+@app.route('/habits')
+@login_required
+def habits():
+    id_usuario = session["id_usuario"]
+    resp = listar_habitos_por_usuario(id_usuario)
+
+    categorias = {
+        1: "Salud",
+        2: "Crecimiento Personal",
+        3: "Bienestar Mental"
+    }
+
+    form = HabitForm()
+    form.categoria.choices = list(categorias.items())
+
+    return render_template(
+        "habits.html",
+        habitos=resp["habitos"],
+        form=form
+    )
+
+
+# ========= CREAR HÁBITO ============
+@app.route('/habits/crear', methods=['POST'])
+@login_required
+def crear_habito():
+    form = HabitForm()
+    categorias = {
+        1: "Salud",
+        2: "Crecimiento Personal",
+        3: "Bienestar Mental"
+    }
+    form.categoria.choices = list(categorias.items())
+
+    if form.validate_on_submit():
+        crear_habito_micro(
+            id_usuario=session["id_usuario"],
+            id_categoria=form.categoria.data,
+            nombre_habito=form.nombre_habito.data,
+            descripcion=form.descripcion.data,
+            frecuencia=form.frecuencia.data,
+            hora_objetivo=None
+        )
+        flash("Hábito creado.", "success")
+    else:
+        flash("Error creando hábito.", "danger")
+        print("ERRORES:", form.errors)
+
+    return redirect(url_for('habits'))
+
+
+# ========= ELIMINAR HÁBITO ============
+@app.route('/habits/eliminar/<int:habito_id>', methods=['POST'])
+@login_required
+def eliminar_habito(habito_id):
+    eliminar_habito_micro(habito_id)
+    flash("Hábito eliminado", "warning")
+    return redirect(url_for('habits'))
+
+
+# ========= TOGGLE PROGRESO ============
 @app.route('/habito/toggle/<int:habito_id>', methods=['POST'])
 @login_required
 def toggle_habito(habito_id):
     today_str = date.today().isoformat()
-    if today_str not in progreso_diario_db:
-        progreso_diario_db[today_str] = {}
-    
-    estado_actual = progreso_diario_db[today_str].get(habito_id, False)
-    progreso_diario_db[today_str][habito_id] = not estado_actual
-    
-    return redirect(url_for('index')) # <-- CORREGIDO a 'index'
-
-# --- La ruta de reportes sigue sin cambios ---
-@app.route('/reportes')
-@login_required
-def reportes():
-    # El resto de la función sigue igual...
-    reportes_generados = []
-    today = date.today()
-    for i in range(4):
-        fecha_fin_semana = today - timedelta(days=(today.weekday() + 1 + (i * 7)))
-        fecha_inicio_semana = fecha_fin_semana - timedelta(days=6)
-        habitos_semanales_completados = 0
-        total_habitos_semanales = 0
-        for day_offset in range(7):
-            current_date = fecha_inicio_semana + timedelta(days=day_offset)
-            date_str = current_date.isoformat()
-            habitos_de_ese_dia = [h for h in habitos_db if h['frecuencia'] == 'Diario']
-            total_habitos_semanales += len(habitos_de_ese_dia)
-            progreso_ese_dia = progreso_diario_db.get(date_str, {})
-            habitos_semanales_completados += sum(1 for h_id in progreso_ese_dia if progreso_ese_dia[h_id])
-        porcentaje = int((habitos_semanales_completados / total_habitos_semanales) * 100) if total_habitos_semanales > 0 else 0
-        reporte = { 'id': i, 'semana': f"Semana del {fecha_inicio_semana.strftime('%d/%m')} al {fecha_fin_semana.strftime('%d/%m')}", 'total_habitos': total_habitos_semanales, 'completados': habitos_semanales_completados, 'porcentaje_cumplimiento': porcentaje, 'mejor_racha': random.randint(3, 7), 'ruta_pdf_s3': url_for('descargar_reporte_pdf', semana_id=i) }
-        reportes_generados.append(reporte)
-    return render_template('reportes.html', title='Mis reportes', reportes=reportes_generados)
+    registrar_progreso(
+        id_habito=habito_id,
+        fecha=today_str,
+        completado=True,
+        comentario=None
+    )
+    return redirect(url_for("index"))
 
 
-# --- RUTAS SIN CAMBIOS (Siguen funcionando igual) ---
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash('¡Felicidades, te has registrado correctamente!', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Registro', form=form)
-
-@app.route('/habits')
-@login_required
-def habits():
-    form = HabitForm()
-    form.categoria.choices = list(categorias_db.items())
-    return render_template('habits.html', title='Mis hábitos', habitos=habitos_db, form=form, racha_actual=12, mejor_racha=45)
-
-@app.route('/habits/crear', methods=['POST'])
-@login_required
-def crear_habito():
-    global next_habit_id
-    form = HabitForm()
-    form.categoria.choices = list(categorias_db.items())
-    if form.validate_on_submit():
-        nuevo_habito = { 'id': next_habit_id, 'nombre_habito': form.nombre_habito.data, 'descripcion': form.descripcion.data, 'frecuencia': form.frecuencia.data, 'id_categoria': int(form.categoria.data), 'categoria': categorias_db.get(int(form.categoria.data)) }
-        habitos_db.append(nuevo_habito)
-        next_habit_id += 1
-        flash('¡Hábito creado con éxito!', 'success')
-    else:
-        flash('Hubo un error al crear el hábito.', 'danger')
-    return redirect(url_for('habits'))
-
-@app.route('/habits/editar/<int:habito_id>', methods=['POST'])
-@login_required
-def editar_habito(habito_id):
-    form = HabitForm()
-    form.categoria.choices = list(categorias_db.items())
-    if form.validate_on_submit():
-        habito_a_editar = next((h for h in habitos_db if h['id'] == habito_id), None)
-        if habito_a_editar:
-            habito_a_editar['nombre_habito'] = form.nombre_habito.data
-            habito_a_editar['descripcion'] = form.descripcion.data
-            habito_a_editar['frecuencia'] = form.frecuencia.data
-            habito_a_editar['id_categoria'] = int(form.categoria.data)
-            habito_a_editar['categoria'] = categorias_db.get(int(form.categoria.data))
-            flash('¡Hábito actualizado!', 'info')
-        else:
-            flash('Hábito no encontrado.', 'danger')
-    else:
-        flash('Error al editar el hábito.', 'danger')
-    return redirect(url_for('habits'))
-
-@app.route('/habits/eliminar/<int:habito_id>', methods=['POST'])
-@login_required
-def eliminar_habito(habito_id):
-    global habitos_db
-    habito_a_eliminar = next((h for h in habitos_db if h['id'] == habito_id), None)
-    if habito_a_eliminar:
-        habitos_db = [h for h in habitos_db if h['id'] != habito_id]
-        flash('Hábito eliminado.', 'warning')
-    else:
-        flash('No se pudo eliminar el hábito.', 'danger')
-    return redirect(url_for('habits'))
-
-@app.route('/reporte/pdf/<int:semana_id>')
-@login_required
-def descargar_reporte_pdf(semana_id):
-    today = date.today()
-    fecha_fin_semana = today - timedelta(days=(today.weekday() + 1 + (semana_id * 7)))
-    fecha_inicio_semana = fecha_fin_semana - timedelta(days=6)
-    semana_str = f"Semana del {fecha_inicio_semana.strftime('%d/%m/%Y')} al {fecha_fin_semana.strftime('%d/%m/%Y')}"
-    return render_template('reporte_pdf.html', semana=semana_str)
-
+# ========= REGISTRO DE PROGRESO ============
 @app.route('/registro_progreso')
 @login_required
 def registro_progreso():
+    id_usuario = session["id_usuario"]
     today = date.today()
     today_str = today.isoformat()
-    
-    habitos_diarios_raw = [h for h in habitos_db if h['frecuencia'] == 'Diario']
+    conn = get_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            SELECT * FROM habitos 
+            WHERE id_usuario = %s AND frecuencia = 'diario'
+        """, (id_usuario,))
+        habitos = cursor.fetchall()
+
     habitos_diarios = []
-    
-    for habito in habitos_diarios_raw:
-        progreso_hoy = progreso_diario_db.get(today_str, {})
-        completado = progreso_hoy.get(habito['id'], False)
-        habitos_diarios.append({**habito, 'completado_hoy': completado})
-    
+    for h in habitos:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT completado
+                FROM registro_progreso
+                WHERE id_habito = %s AND fecha = %s
+            """, (h["id_habito"], today_str))
+            row = cursor.fetchone()
+        h["completado_hoy"] = row["completado"] if row else False
+        habitos_diarios.append(h)
+
     total_hoy = len(habitos_diarios)
-    completados_hoy = sum(1 for h in habitos_diarios if h['completado_hoy'])
-    porcentaje_completado = int((completados_hoy / total_hoy) * 100) if total_hoy > 0 else 0
-    
-    motivational_messages = [
-        "¡Cada paso cuenta! Comienza con el primer hábito.",
-        "¡Vas por buen camino! Sigue así.",
-        "¡Increíble progreso! Ya casi terminas.",
-        "¡Último empujón! Estás a punto de completar el día."
-    ]
-    
-    if porcentaje_completado < 25:
-        motivational_message = motivational_messages[0]
-    elif porcentaje_completado < 50:
-        motivational_message = motivational_messages[1]
-    elif porcentaje_completado < 75:
-        motivational_message = motivational_messages[2]
-    else:
-        motivational_message = motivational_messages[3]
-    
-    return render_template('registro_progreso.html',
-                         habitos_diarios=habitos_diarios,
-                         total_hoy=total_hoy,
-                         completados_hoy=completados_hoy,
-                         porcentaje_completado=porcentaje_completado,
-                         today_date=today.strftime('%A, %d de %B de %Y'),
-                         motivational_message=motivational_message)
+    completados_hoy = sum(1 for h in habitos_diarios if h["completado_hoy"])
+    porcentaje = int((completados_hoy / total_hoy) * 100) if total_hoy > 0 else 0
+
+    motivational_message = (
+        "¡Cada paso cuenta!" if porcentaje < 25 else
+        "¡Vas por buen camino!" if porcentaje < 50 else
+        "¡Casi lo logras!" if porcentaje < 75 else
+        "¡Excelente trabajo!"
+    )
+
+    return render_template(
+        "registro_progreso.html",
+        habitos_diarios=habitos_diarios,
+        total_hoy=total_hoy,
+        completados_hoy=completados_hoy,
+        porcentaje_completado=porcentaje,
+        today_date=today.strftime("%A, %d de %B de %Y"),
+        motivational_message=motivational_message
+    )
+
+
+# ========= REPORTES ============
+@app.route('/reportes')
+@login_required
+def reportes():
+    id_usuario = session["id_usuario"]
+    resultado = generar_reporte_semanal(id_usuario)
+
+    if not resultado["hay_reporte"]:
+        return render_template("reportes.html", reportes=None)
+
+    lista_reportes = [{
+        "semana": resultado["semana"],
+        "completados": resultado["completados"],
+        "total_habitos": resultado["total"], 
+        "porcentaje_cumplimiento": resultado["porcentaje"],
+        "mejor_racha": resultado["racha"],
+        "archivo_pdf": resultado["archivo_pdf"],
+        "archivo_excel": resultado["archivo_excel"]
+    }]
+
+    return render_template("reportes.html", reportes=lista_reportes)

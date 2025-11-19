@@ -235,6 +235,8 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
+              <!-- Solo mostramos menú si está logueado -->
+              {% if session.get('logged_in') %}
               <li class="nav-item">
                 <a
                   class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
@@ -263,12 +265,13 @@
                   >Reportes</a
                 >
               </li>
-              <!-- Replaced Login/Register with Logout -->
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('logout') }}">
                   <i class="bi bi-box-arrow-right"></i>
                 </a>
               </li>
+              {% endif %}
+
               <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
                 <div class="theme-switch-container">
                   <i class="bi bi-sun theme-icon"></i>
@@ -295,6 +298,7 @@
       crossorigin="anonymous"
     ></script>
 
+    <!-- Script para Tema Oscuro/Claro -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const checkbox = document.getElementById("theme-checkbox");
@@ -318,6 +322,43 @@
         });
       });
     </script>
+
+    <!-- ================================================ -->
+    <!-- SCRIPT DE INACTIVIDAD (AUTO-LOGOUT 5 MINUTOS) -->
+    <!-- ================================================ -->
+    <!-- Solo se activa si está logueado Y NO marcó "Recuérdame" -->
+    {% if session.get('logged_in') and not session.get('remember_me') %}
+    <script>
+      let inactivityTime = function () {
+        let time;
+        // 5 minutos en milisegundos (5 * 60 * 1000)
+        const timeoutDuration = 300000;
+
+        // Función que reinicia el contador
+        const resetTimer = () => {
+          clearTimeout(time);
+          time = setTimeout(logout, timeoutDuration);
+        };
+
+        // Función que hace el logout
+        const logout = () => {
+          // Redirige a la ruta de logout de Flask
+          window.location.href = "{{ url_for('logout') }}";
+        };
+
+        // Eventos que reinician el timer (cualquier actividad)
+        window.onload = resetTimer;
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
+        document.ontouchstart = resetTimer; // Para móviles
+        document.onclick = resetTimer; // Clics
+        document.onscroll = resetTimer; // Scrolling
+      };
+
+      // Iniciar la detección
+      inactivityTime();
+    </script>
+    {% endif %}
 
     <!-- Bloque para scripts específicos de cada página -->
     {% block scripts %}{% endblock %}

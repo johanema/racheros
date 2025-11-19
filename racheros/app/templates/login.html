@@ -1,5 +1,5 @@
-{% extends "base_auth.html" %} {% block title %}Iniciar sesión{% endblock %} {% block
-styles %}
+{% extends "base_auth.html" %} {% block title %}Iniciar sesión{% endblock %} {%
+block styles %}
 <style>
   /* Estilos Neumórficos Compartidos */
   :root {
@@ -135,7 +135,6 @@ styles %}
           <div
             class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center text-center p-5"
           >
-            <!-- AQUÍ ESTÁ EL CAMBIO -->
             <img
               src="{{ url_for('static', filename='mascota.png') }}"
               alt="Mascota Racheros"
@@ -176,7 +175,11 @@ styles %}
                   {{ form.remember_me(class="form-check-input") }} {{
                   form.remember_me.label(class="form-check-label small") }}
                 </div>
-                <a href="#" class="small text-orange"
+                <!-- ID AGREGADO PARA JAVASCRIPT -->
+                <a
+                  href="{{ url_for('reset_request') }}"
+                  id="forgot-password-link"
+                  class="small text-orange"
                   >¿Olvidaste tu contraseña?</a
                 >
               </div>
@@ -207,6 +210,25 @@ styles %}
     const requiredInputs = form.querySelectorAll(
       '[name="username"], [name="password"]'
     );
+
+    // --- LÓGICA NUEVA: AUTO-LLENAR LINK DE RECUPERACIÓN ---
+    const usernameInput = form.querySelector('[name="username"]');
+    const forgotLink = document.getElementById("forgot-password-link");
+    const baseResetUrl = "{{ url_for('reset_request') }}";
+
+    if (usernameInput && forgotLink) {
+      // Actualizar al escribir
+      usernameInput.addEventListener("input", function () {
+        const email = this.value.trim();
+        if (email) {
+          forgotLink.href =
+            baseResetUrl + "?email=" + encodeURIComponent(email);
+        } else {
+          forgotLink.href = baseResetUrl;
+        }
+      });
+    }
+    // -----------------------------------------------------
 
     function checkFormValidity() {
       if (!form || !submitBtn) return;
