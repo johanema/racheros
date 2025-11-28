@@ -1,0 +1,49 @@
+[33m24d3431[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m avance 40
+[33m8e86c5d[m avance 39
+[33me64dc41[m avance 38
+[33mdeb576f[m avance 37
+[33m83bb636[m avance 36
+[33me07e407[m avance 35
+[33m1a24467[m avance 34
+[33me0895e7[m avance 33
+[33mcb942f9[m avance 32
+[33m128eda2[m avance 31
+[33m317db16[m avance 30
+[33m0948f1d[m avance 29
+[33m3e73793[m avance 28
+[33m8c1a7fa[m avance 27
+[33mbab24ca[m avance 26
+[33m3f668e1[m avance 25
+[33mc2521b7[m avance 24
+[33m8811913[m avance 23
+[33mb172e99[m avance 22
+[33m0cf0dfd[m avance 21
+[33m21bbe48[m avance 20
+[33mc8c6ed8[m avance 19
+[33m46c0582[m avance 18
+[33m710ad46[m avance 17
+[33m6a76b47[m avance 16
+[33m900353e[m avance 15
+[33m0635280[m avance 14
+[33m28d69f9[m avance 13
+[33m03801da[m avance 12
+[33md05e0b4[m avance 11
+[33mce9cc92[m avance 10
+[33m74cb510[m avance 9
+[33m37caecd[m avance 8
+[33m2b9fdb8[m avance 7
+[33mde350a6[m avance 6
+[33m311cdca[m avance 5
+[33m39b70b2[m avance 4
+[33m72c4fde[m avance 3
+[33m3988ecf[m avance 2
+[33mbefcd6a[m avance 1
+[33m1b183da[m Limpieza de entorno virtual y archivos no rastreados
+[33m72702d1[m[33m ([m[1;31morigin/ema[m[33m)[m EVELYN AGREGÓ EL BACKEND
+[33m6446fbf[m Modifiqué el flujo de la app y el archivo dashboard.html
+[33m8db5ed7[m Agregué templates registro_progreso, reportes, reporte_pdf y habits; además de modificar routes
+[33m6a4ba9b[m Merge pull request #2 from johanema/master
+[33mfdef501[m Merge pull request #1 from johanema/ema
+[33m8df2f38[m versión 1 del sistema para gestión de hábitos
+[33mc2f520b[m versión 1 del sistema para gestión de hábitos
+[33m6045d8c[m versión 1 del sistema para gestión de hábitos
