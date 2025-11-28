@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Racheros{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='icono.ico') }}" />
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      xintegrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,7 +19,6 @@
       rel="stylesheet"
     />
 
-    <!-- Iconos de Bootstrap -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
@@ -40,6 +37,8 @@
         --neumorphic-shadow-dark-2: #202328;
         --racheros-orange: #ea580c;
         --racheros-cyan: #22d3ee;
+        --island-contrast-light: #f5f8fa;
+        --island-contrast-dark: #202328;
       }
 
       body {
@@ -47,7 +46,6 @@
         background-color: var(--neumorphic-bg-light);
         color: var(--neumorphic-text-light);
         transition: background-color 0.3s ease, color 0.3s ease;
-        padding-top: 100px; /* Espacio ajustado para la navbar */
       }
 
       [data-bs-theme="dark"] body {
@@ -55,32 +53,7 @@
         color: var(--neumorphic-text-dark);
       }
 
-      /* Navbar Neumórfica */
-      .navbar {
-        background: var(--neumorphic-bg-light);
-        box-shadow: 8px 8px 15px var(--neumorphic-shadow-light-2),
-          -8px -8px 15px var(--neumorphic-shadow-light-1);
-        border-bottom: none;
-        padding: 1rem;
-      }
-      [data-bs-theme="dark"] .navbar {
-        background: var(--neumorphic-bg-dark);
-        box-shadow: 8px 8px 15px var(--neumorphic-shadow-dark-2),
-          -8px -8px 15px var(--neumorphic-shadow-dark-1);
-      }
-
-      .navbar-brand,
-      .nav-link,
-      .theme-icon {
-        color: var(--neumorphic-text-light);
-        transition: all 0.3s ease;
-      }
-      [data-bs-theme="dark"] .navbar-brand,
-      [data-bs-theme="dark"] .nav-link,
-      [data-bs-theme="dark"] .theme-icon {
-        color: var(--neumorphic-text-dark);
-      }
-
+      /* Logo Estilo */
       .navbar-brand-logo {
         height: 2.5rem;
         width: auto;
@@ -97,17 +70,29 @@
           -4px -4px 8px var(--neumorphic-shadow-dark-1);
       }
 
+      /* Estilos generales para enlaces de la nav */
       .nav-link {
+        color: var(--neumorphic-text-light);
+        transition: all 0.3s ease;
         margin: 0 0.5rem;
         padding: 0.75rem 1.25rem !important;
         border-radius: 12px;
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
       }
+      [data-bs-theme="dark"] .nav-link {
+        color: var(--neumorphic-text-dark);
+      }
+
       .nav-link:hover {
         color: var(--racheros-orange);
       }
       .nav-link:active,
       .nav-link.active {
+        /* Neumorfismo de presionado */
         box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-light-2),
           inset -5px -5px 10px var(--neumorphic-shadow-light-1) !important;
         color: var(--racheros-orange);
@@ -122,95 +107,341 @@
         color: var(--racheros-cyan);
       }
 
-      /* Switch de Tema */
+      .text-orange {
+        color: #ea580c !important;
+      }
+
+      /* --- ESTILOS DE ISLA DINÁMICA DEL FOOTER --- */
+
+      .dynamic-footer-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        transition: all 0.5s ease;
+        z-index: 1030;
+
+        /* Estilos base: Transparente y se ajusta al contenido (COLAPSADO) */
+        background: transparent;
+        box-shadow: none;
+        border-radius: 1.5rem 1.5rem 0 0;
+        width: fit-content;
+        margin: 0 auto;
+      }
+
+      /* CAMBIO CLAVE: Estilos aplicados SOLAMENTE cuando está EXPANDIDO */
+      .dynamic-footer-nav.expanded {
+        /* Ocupa todo el ancho cuando está expandido */
+        width: 100% !important;
+
+        /* Estilo Neumórfico de Fondo y Sombra */
+        background: var(--neumorphic-bg-light);
+        box-shadow: 0 8px 15px var(--neumorphic-shadow-light-2),
+          0 -8px 15px var(--neumorphic-shadow-light-1);
+      }
+      [data-bs-theme="dark"] .dynamic-footer-nav.expanded {
+        background: var(--neumorphic-bg-dark);
+        box-shadow: 0 8px 15px var(--neumorphic-shadow-dark-2),
+          0 -8px 15px var(--neumorphic-shadow-dark-1);
+      }
+      /* --- FIN CAMBIO CLAVE --- */
+
+      /* Contenedor principal para la alineación */
+      .nav-content-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+        justify-content: space-between;
+      }
+
+      /* Estado: REDUCIDO (Colapsado) */
+      .dynamic-footer-nav.collapsed .nav-content-container {
+        justify-content: unset;
+        gap: 1rem;
+      }
+
+      /* Logo y marca */
+      .footer-brand {
+        z-index: 10;
+        flex-shrink: 0;
+        transition: opacity 0.3s ease;
+      }
+      .dynamic-footer-nav.collapsed .footer-brand {
+        {% if session.get('logged_in') %}
+        display: none !important;
+        {% endif %}
+      }
+
+      /* Lista de Pestañas - CENTRO */
+      .dynamic-footer-nav .nav-list {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        transition: all 0.5s ease;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Pestañas - En modo EXPANDIDO */
+      .dynamic-footer-nav.expanded .nav-list {
+        opacity: 1;
+        pointer-events: auto;
+        position: static;
+        transform: none;
+        margin: 0 auto;
+      }
+      /* Pestañas - En modo COLAPSADO (Solo el activo) */
+      .dynamic-footer-nav.collapsed .nav-list {
+        transition: none;
+        position: static;
+        left: unset;
+        transform: none;
+        opacity: 1;
+        display: flex;
+        flex-wrap: nowrap;
+        width: auto;
+      }
+      .dynamic-footer-nav.collapsed .nav-list .nav-item:not(.active-item) {
+        display: none !important;
+      }
+
+      /* Escondemos el texto del activo en el modo colapsado para que solo se vea el ícono */
+      .nav-item.active-item .nav-link span {
+        display: none;
+      }
+      /* Mostramos el texto cuando está expandido */
+      .dynamic-footer-nav.expanded .nav-link span {
+        display: inline;
+        margin-left: 0.5rem;
+      }
+
+      /* --- Contenedor para el Botón de Toggle y el Activo en modo Colapsado (la "cápsula") --- */
+      .collapsed-active-group {
+        display: flex;
+        align-items: center;
+        /* Estilo de la "cápsula" (esta mantiene el efecto neumórfico) */
+        border-radius: 1.5rem;
+        padding: 0.25rem 0.5rem;
+        background: var(--neumorphic-bg-light);
+        box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
+          -4px -4px 8px var(--neumorphic-shadow-light-1);
+        z-index: 10;
+        flex-shrink: 0;
+        margin-right: 0.5rem;
+      }
+      [data-bs-theme="dark"] .collapsed-active-group {
+        background: var(--neumorphic-bg-dark);
+        box-shadow: 4px 4px 8px var(--neumorphic-shadow-dark-2),
+          -4px -4px 8px var(--neumorphic-shadow-dark-1);
+      }
+      /* Ocultar en modo expandido */
+      .dynamic-footer-nav:not(.collapsed) .collapsed-active-group {
+          display: none !important;
+      }
+
+
+      /* Botón de Toggle */
+      .toggle-button {
+        padding: 0.5rem 0.5rem;
+        border-radius: 10px;
+        border: none;
+        background: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--racheros-orange);
+        box-shadow: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        outline: none;
+        flex-shrink: 0;
+        z-index: 10;
+        margin-right: 0.75rem;
+      }
+
+      /* Estilos para el botón DENTRO del grupo colapsado */
+      .dynamic-footer-nav.collapsed .collapsed-active-group .toggle-button {
+          margin-left: 0.5rem;
+          margin-right: 0;
+          font-size: 1.25rem;
+      }
+
+
+      [data-bs-theme="dark"] .toggle-button {
+        color: var(--racheros-cyan);
+      }
+      /* Efecto de presionado del botón (aplica tanto en expandido como en colapsado) */
+      .toggle-button:active {
+        box-shadow: inset 2px 2px 5px var(--neumorphic-shadow-light-2),
+          inset -2px -2px 5px var(--neumorphic-shadow-light-1) !important;
+      }
+      [data-bs-theme="dark"] .toggle-button:active {
+        box-shadow: inset 2px 2px 5px var(--neumorphic-shadow-dark-2),
+          inset -2px -2px 5px var(--neumorphic-shadow-dark-1) !important;
+      }
+
+      /* Ajuste para el activo dentro del grupo colapsado */
+      .dynamic-footer-nav.collapsed .collapsed-active-group .nav-link {
+          margin: 0;
+          padding: 0.25rem 0.5rem !important;
+      }
+      .dynamic-footer-nav.collapsed .collapsed-active-group .nav-link.active {
+          box-shadow: none !important;
+      }
+
+      /* Switch de Tema - DERECHA (Este también mantiene su propio recuadro/cápsula) */
       .theme-switch-container {
         display: flex;
         align-items: center;
         padding: 0.5rem;
         border-radius: 12px;
+        flex-shrink: 0;
+        margin-left: auto;
+        z-index: 10;
+        /* Estilo neumórfico para el switch */
+        background: var(--neumorphic-bg-light);
+        box-shadow: 4px 4px 8px var(--neumorphic-shadow-light-2),
+          -4px -4px 8px var(--neumorphic-shadow-light-1);
+      }
+      [data-bs-theme="dark"] .theme-switch-container {
+        background: var(--neumorphic-bg-dark);
+        box-shadow: 4px 4px 8px var(--neumorphic-shadow-dark-2),
+          -4px -4px 8px var(--neumorphic-shadow-dark-1);
       }
 
-      .theme-switch {
-        display: inline-block;
-        height: 20px;
-        position: relative;
-        width: 40px;
-      }
-      .theme-switch input {
-        display: none;
-      }
+      /* Pequeños ajustes para la barra de tema (sin cambios) */
+      .theme-switch { display: inline-block; height: 20px; position: relative; width: 40px; }
+      .theme-switch input { opacity: 0; width: 0; height: 0; }
       .slider {
-        background-color: #ccc;
-        bottom: 0;
-        cursor: pointer;
-        left: 0;
         position: absolute;
-        right: 0;
+        cursor: pointer;
         top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--neumorphic-bg-light);
         transition: 0.4s;
+        box-shadow: inset 2px 2px 5px var(--neumorphic-shadow-light-2),
+          inset -2px -2px 5px var(--neumorphic-shadow-light-1);
       }
+      [data-bs-theme="dark"] .slider {
+        background-color: var(--neumorphic-bg-dark);
+        box-shadow: inset 2px 2px 5px var(--neumorphic-shadow-dark-2),
+          inset -2px -2px 5px var(--neumorphic-shadow-dark-1);
+      }
+
       .slider:before {
-        background-color: #fff;
-        bottom: 2px;
+        position: absolute;
         content: "";
         height: 16px;
-        left: 2px;
-        position: absolute;
-        transition: 0.4s;
         width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.4s;
+        box-shadow: 1px 1px 3px var(--neumorphic-shadow-light-2);
       }
-      input:checked + .slider {
-        background-color: var(--racheros-orange);
+      [data-bs-theme="dark"] .slider:before {
+        background-color: #5b626d;
+        box-shadow: 1px 1px 3px var(--neumorphic-shadow-dark-2);
       }
+
       input:checked + .slider:before {
         transform: translateX(20px);
       }
+
       .slider.round {
         border-radius: 34px;
       }
+
       .slider.round:before {
         border-radius: 50%;
       }
-
-      .text-orange {
-        color: #ea580c !important;
+      .theme-icon {
+        font-size: 1.25rem;
+        color: var(--neumorphic-text-light);
+      }
+      [data-bs-theme="dark"] .theme-icon {
+        color: var(--neumorphic-text-dark);
       }
 
-      /* Footer Neumórfico */
-      .neumorphic-footer {
-        padding: 1rem 0;
-        margin-top: 2rem;
-        background: var(--neumorphic-bg-light);
-        box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-light-2),
-          inset -5px -5px 10px var(--neumorphic-shadow-light-1);
+      /* En móvil (siempre expandido y centrado) */
+      @media (max-width: 991.98px) {
+        .dynamic-footer-nav {
+          width: 100% !important;
+          border-radius: 1rem 1rem 0 0;
+          padding: 0.75rem 0.5rem;
+          /* Aplicamos el fondo y la sombra SIEMPRE en móvil para que se vea bien */
+          background: var(--neumorphic-bg-light);
+          box-shadow: 0 8px 15px var(--neumorphic-shadow-light-2),
+          0 -8px 15px var(--neumorphic-shadow-light-1);
+        }
+        [data-bs-theme="dark"] .dynamic-footer-nav {
+            background: var(--neumorphic-bg-dark);
+            box-shadow: 0 8px 15px var(--neumorphic-shadow-dark-2),
+            0 -8px 15px var(--neumorphic-shadow-dark-1);
+        }
+        .dynamic-footer-nav .nav-content-container {
+            justify-content: space-around;
+        }
+        .dynamic-footer-nav .nav-list {
+          display: flex !important;
+          justify-content: space-around;
+          width: 100%;
+          opacity: 1;
+          pointer-events: auto;
+          position: static;
+        }
+        .dynamic-footer-nav.collapsed .nav-list .nav-item:not(.active-item) {
+            display: block !important;
+        }
+        .nav-link span {
+            display: none !important;
+        }
+        .toggle-button, .footer-brand, .collapsed-active-group {
+          display: none !important;
+        }
+        .theme-switch-container {
+            margin-left: 0;
+            box-shadow: none; /* Quitamos el neumorfismo en móvil si hay fondo */
+            background: transparent; /* Quitamos el fondo en móvil */
+            padding: 0.5rem;
+        }
+        [data-bs-theme="dark"] .theme-switch-container {
+            background: transparent;
+        }
+        .d-flex.flex-column.min-vh-100 {
+          padding-bottom: 5rem;
+        }
       }
-      [data-bs-theme="dark"] .neumorphic-footer {
-        background: var(--neumorphic-bg-dark);
-        box-shadow: inset 5px 5px 10px var(--neumorphic-shadow-dark-2),
-          inset -5px -5px 10px var(--neumorphic-shadow-dark-1);
-      }
-      .neumorphic-footer a,
-      .neumorphic-footer strong {
-        color: var(--racheros-orange); /* Naranja para contraste */
-        text-decoration: none;
-        font-weight: 600;
-      }
-      .neumorphic-footer a:hover {
-        text-decoration: underline;
-      }
-      [data-bs-theme="dark"] .neumorphic-footer a,
-      [data-bs-theme="dark"] .neumorphic-footer strong {
-        color: var(--racheros-cyan); /* Cian para contraste en modo oscuro */
+
+      /* Ajuste de padding para el contenido principal para que no quede debajo del footer */
+      .d-flex.flex-column.min-vh-100 {
+        padding-bottom: 7rem;
       }
     </style>
 
-    <!-- Bloque para estilos específicos de cada página -->
     {% block styles %}{% endblock %}
   </head>
   <body>
     <div class="d-flex flex-column min-vh-100">
-      <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container-fluid">
+      <main class="flex-grow-1">{% block content %}{% endblock %}</main>
+    </div>
+
+    <nav class="dynamic-footer-nav collapsed" id="dynamicFooterNav">
+      <div class="nav-content-container">
+        <div class="footer-brand d-flex align-items-center">
           <a
             class="navbar-brand d-flex align-items-center"
             href="{{ url_for('index') }}"
@@ -220,90 +451,91 @@
               alt="Logo Racheros"
               class="navbar-brand-logo"
             />
-            <span class="fw-bold">Racheros</span>
+            <span class="fw-bold" style="color: var(--neumorphic-text-light)"
+              >Racheros</span
+            >
           </a>
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-              <!-- Solo mostramos menú si está logueado -->
-              {% if session.get('logged_in') %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
-                  href="{{ url_for('index') }}"
-                  >Dashboard</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if request.endpoint == 'registro_progreso' %}active{% endif %}"
-                  href="{{ url_for('registro_progreso') }}"
-                  >Registro diario</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if request.endpoint == 'habits' %}active{% endif %}"
-                  href="{{ url_for('habits') }}"
-                  >Mis hábitos</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if request.endpoint == 'reportes' %}active{% endif %}"
-                  href="{{ url_for('reportes') }}"
-                  >Reportes</a
-                >
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logout') }}">
-                  <i class="bi bi-box-arrow-right"></i>
-                </a>
-              </li>
-              {% endif %}
-
-              <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
-                <div class="theme-switch-container">
-                  <i class="bi bi-sun theme-icon"></i>
-                  <div class="theme-switch mx-2">
-                    <input type="checkbox" id="theme-checkbox" />
-                    <label for="theme-checkbox" class="slider round"></label>
-                  </div>
-                  <i class="bi bi-moon theme-icon"></i>
-                </div>
-              </li>
-            </ul>
-          </div>
         </div>
-      </nav>
 
-      <!-- Contenido principal de la página -->
-      <main class="flex-grow-1">{% block content %}{% endblock %}</main>
-    </div>
+        {% if session.get('logged_in') %}
+        <button class="toggle-button" id="toggleNavButtonExpanded">
+          <i class="bi bi-x-lg"></i>
+        </button>
+        {% endif %} {% if session.get('logged_in') %}
+        <div class="collapsed-active-group" id="collapsedActiveGroup">
+          <button class="toggle-button" id="toggleNavButtonCollapsed">
+            <i class="bi bi-three-dots"></i>
+          </button>
+        </div>
+        {% endif %} {% if session.get('logged_in') %}
+        <ul class="nav-list d-flex align-items-center" id="navList">
+          <li
+            class="nav-item {% if request.endpoint == 'index' %}active-item{% endif %}"
+          >
+            <a
+              class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+              href="{{ url_for('index') }}"
+              ><i class="bi bi-speedometer2"></i><span>Dashboard</span></a
+            >
+          </li>
+          <li
+            class="nav-item {% if request.endpoint == 'registro_progreso' %}active-item{% endif %}"
+          >
+            <a
+              class="nav-link {% if request.endpoint == 'registro_progreso' %}active{% endif %}"
+              href="{{ url_for('registro_progreso') }}"
+              ><i class="bi bi-journal-check"></i
+              ><span>Registro diario</span></a
+            >
+          </li>
+          <li
+            class="nav-item {% if request.endpoint == 'habits' %}active-item{% endif %}"
+          >
+            <a
+              class="nav-link {% if request.endpoint == 'habits' %}active{% endif %}"
+              href="{{ url_for('habits') }}"
+              ><i class="bi bi-calendar-check"></i><span>Mis hábitos</span></a
+            >
+          </li>
+          <li
+            class="nav-item {% if request.endpoint == 'reportes' %}active-item{% endif %}"
+          >
+            <a
+              class="nav-link {% if request.endpoint == 'reportes' %}active{% endif %}"
+              href="{{ url_for('reportes') }}"
+              ><i class="bi bi-graph-up"></i><span>Reportes</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">
+              <i class="bi bi-box-arrow-right"></i>
+            </a>
+          </li>
+        </ul>
+        {% endif %}
 
-    <!-- Bootstrap JS -->
+        <div class="theme-switch-container">
+          <i class="bi bi-sun theme-icon"></i>
+          <div class="theme-switch mx-2">
+            <input type="checkbox" id="theme-checkbox" />
+            <label for="theme-checkbox" class="slider round"></label>
+          </div>
+          <i class="bi bi-moon theme-icon"></i>
+        </div>
+      </div>
+    </nav>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      xintegrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
 
-    <!-- Script para Tema Oscuro/Claro -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const checkbox = document.getElementById("theme-checkbox");
         const htmlElement = document.documentElement;
 
+        // --- MANEJO DE TEMA (MODO OSCURO/CLARO) ---
         function setTheme(theme) {
           htmlElement.setAttribute("data-bs-theme", theme);
           localStorage.setItem("theme", theme);
@@ -320,15 +552,167 @@
         checkbox.addEventListener("change", () => {
           setTheme(checkbox.checked ? "dark" : "light");
         });
+
+        // --- FUNCIONALIDAD DE ISLA DINÁMICA ---
+        const nav = document.getElementById("dynamicFooterNav");
+        const toggleButtonExpanded = document.getElementById(
+          "toggleNavButtonExpanded"
+        );
+        const toggleButtonCollapsed = document.getElementById(
+          "toggleNavButtonCollapsed"
+        );
+        const collapsedGroup = document.getElementById("collapsedActiveGroup");
+        const activeItem = nav.querySelector(".active-item");
+        const navList = document.getElementById("navList");
+        const footerBrand = nav.querySelector(".footer-brand");
+        const themeSwitchContainer = nav.querySelector(
+          ".theme-switch-container"
+        );
+
+        const loggedIn = "{{ session.get('logged_in') }}" === "True";
+
+        if (nav && (activeItem || !loggedIn)) {
+          // Mover el elemento activo al grupo colapsado si está logueado
+          if (loggedIn && collapsedGroup && activeItem.firstElementChild) {
+            // Clonar el enlace y añadirlo al inicio del grupo colapsado
+            const activeLinkClone =
+              activeItem.firstElementChild.cloneNode(true);
+            collapsedGroup.prepend(activeLinkClone);
+
+            // Ocultar el nav-item original de la lista principal en modo colapsado
+            activeItem.style.display = "none";
+          }
+
+          // 1. Inicializar el estado colapsado para que se vea solo el activo
+          function setCollapsedState() {
+            if (window.innerWidth >= 992) {
+              // Solo en desktop
+              nav.classList.add("collapsed");
+              nav.classList.remove("expanded");
+
+              // Ocultar el toggle expandido
+              if (toggleButtonExpanded)
+                toggleButtonExpanded.style.display = "none";
+
+              // Mostrar/Ocultar elementos según el estado
+              nav.querySelectorAll(".nav-item").forEach((item) => {
+                item.style.display = item.classList.contains("active-item")
+                  ? "none"
+                  : "none"; // Ocultar todos, el activo está en el grupo
+              });
+              if (navList) navList.style.opacity = "0";
+              if (loggedIn && collapsedGroup)
+                collapsedGroup.style.display = "flex";
+
+              // Necesitamos medir el ancho exacto de los elementos visibles
+              let totalWidth = 0;
+              const totalPadding = 50; // Padding horizontal de la nav (aprox. 1rem a cada lado)
+
+              if (loggedIn) {
+                // Si está logueado, solo se ve: [ Grupo Colapsado | Switch ]
+                const collapsedGroupWidth =
+                  collapsedGroup.getBoundingClientRect().width;
+                const themeSwitchWidth =
+                  themeSwitchContainer.getBoundingClientRect().width;
+                totalWidth = collapsedGroupWidth + themeSwitchWidth + 16; // 16px de gap
+
+                // Ocultar el logo si está logueado
+                if (footerBrand) footerBrand.style.display = "none";
+              } else {
+                // Si NO está logueado, se ve: [ Logo | Switch ]
+                const logoWidth = footerBrand.getBoundingClientRect().width;
+                const themeSwitchWidth =
+                  themeSwitchContainer.getBoundingClientRect().width;
+                totalWidth = logoWidth + themeSwitchWidth + 16; // 16px de gap
+
+                // Mostrar logo si no está logueado
+                if (footerBrand) footerBrand.style.display = "flex";
+              }
+
+              const newWidth = totalWidth + totalPadding;
+
+              // Aplicar el ancho calculado a la NAV principal (necesario para la transición)
+              nav.style.width = `${newWidth}px`;
+            } else {
+              // En móvil (siempre expandido, forzado por CSS)
+              nav.classList.add("expanded");
+              nav.classList.remove("collapsed");
+              nav.style.width = "100%";
+            }
+          }
+
+          // 2. Función para alternar la navegación
+          const toggleNav = (toggleBtn) => {
+            if (nav.classList.contains("collapsed")) {
+              // EXPANDIR
+              nav.classList.remove("collapsed");
+              nav.classList.add("expanded");
+              // El CSS aplicará width: 100% y el fondo/sombras
+
+              // Mostrar todos los elementos del menú y el logo (si está oculto)
+              nav.querySelectorAll(".nav-item").forEach((item) => {
+                item.style.display = "block"; // Mostrar todos los items originales
+              });
+              if (navList) navList.style.opacity = "1";
+
+              if (footerBrand) footerBrand.style.display = "flex";
+              if (collapsedGroup) collapsedGroup.style.display = "none"; // Ocultar el grupo colapsado
+
+              // Cambiar íconos
+              if (toggleButtonExpanded)
+                toggleButtonExpanded.style.display = "flex";
+              if (toggleButtonCollapsed)
+                toggleButtonCollapsed.style.display = "none";
+              if (toggleButtonExpanded) {
+                toggleButtonExpanded
+                  .querySelector("i")
+                  .classList.remove("bi-three-dots");
+                toggleButtonExpanded
+                  .querySelector("i")
+                  .classList.add("bi-x-lg");
+              }
+            } else {
+              // COLAPSAR
+              setCollapsedState();
+              // El CSS aplicará width: fit-content y background: transparent
+
+              // Cambiar íconos
+              if (toggleButtonExpanded)
+                toggleButtonExpanded.style.display = "none";
+              if (toggleButtonCollapsed)
+                toggleButtonCollapsed.style.display = "flex";
+              if (toggleButtonCollapsed) {
+                toggleButtonCollapsed
+                  .querySelector("i")
+                  .classList.remove("bi-x-lg");
+                toggleButtonCollapsed
+                  .querySelector("i")
+                  .classList.add("bi-three-dots");
+              }
+            }
+          };
+
+          if (toggleButtonExpanded) {
+            toggleButtonExpanded.addEventListener("click", () =>
+              toggleNav(toggleButtonExpanded)
+            );
+          }
+          if (toggleButtonCollapsed) {
+            toggleButtonCollapsed.addEventListener("click", () =>
+              toggleNav(toggleButtonCollapsed)
+            );
+          }
+
+          // 3. Inicializar y reajustar al cambiar tamaño de ventana
+          setCollapsedState();
+          window.addEventListener("resize", setCollapsedState);
+        }
       });
     </script>
 
-    <!-- ================================================ -->
-    <!-- SCRIPT DE INACTIVIDAD (AUTO-LOGOUT 5 MINUTOS) -->
-    <!-- ================================================ -->
-    <!-- Solo se activa si está logueado Y NO marcó "Recuérdame" -->
     {% if session.get('logged_in') and not session.get('remember_me') %}
     <script>
+      // --- LOGOUT POR INACTIVIDAD ---
       let inactivityTime = function () {
         let time;
         // 5 minutos en milisegundos (5 * 60 * 1000)
@@ -358,9 +742,6 @@
       // Iniciar la detección
       inactivityTime();
     </script>
-    {% endif %}
-
-    <!-- Bloque para scripts específicos de cada página -->
-    {% block scripts %}{% endblock %}
+    {% endif %} {% block scripts %}{% endblock %}
   </body>
 </html>
