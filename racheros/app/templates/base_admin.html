@@ -249,13 +249,13 @@
             </button>
           </div>
 
-          <a href="#" class="nav-link-admin text-danger">
-            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+          <a href="{{ url_for('logout') }}" class="nav-link-admin text-danger">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
           </a>
         </div>
       </div>
     </nav>
-
+    <!-- ÚLTIMOS CAMBIOS -->
     <!-- CONTENIDO PRINCIPAL (Esto faltaba y causaba que se viera amontonado) -->
     <main class="main-content">{% block content %}{% endblock %}</main>
 
